@@ -79,7 +79,6 @@ Below is some useful code that will:
 - load them into your R environment so they are available to use.
 
 ```{r, eval=FALSE}
-#required.pkg <- c("ggmap", "rgdal", "rgeos", "maptools", "dplyr", "tidyr", "tmap", "sp", "ggplot2", "scales", "maps")
 
 required.pkg <- c("maps","ggplot2","ggmap", "rgdal", "sp", "dplyr", "tidyr", "scales", "RColorBrewer","classInt")
 pkgs.not.installed <- required.pkg[!sapply(required.pkg, function(p) require(p, character.only=T))]
@@ -274,11 +273,11 @@ na_plot + coord_map("mercator")
 ```
 Is there still distortion? Is it the same as before?
 
-### Discussion (instructor can remove this section)
+### Discussion
 
-- The data mapped with geographic coordinates creates distortion in the east-west direction resulting in a stretched out NA. This stretched look is clue that geographic coordinates are being used to create a map.
-- The data mapped with the mercator map projection looks better for USA but grossly exaggerates areas in all directions as you get closer to the poles.
-- Some software reconizes geographic coordinates and will apply a map projection transformation to improve the display of the data.
+- The data mapped with geographic coordinates creates distortion dramatically in the east-west direction resulting in a stretched out looking North America. This stretched look is clue that geographic coordinates are being used to create a map.
+- The data mapped with the mercator map projection looks better for USA but grossly exaggerates areas in all directions as you get closer to the poles, in this case the north pole.
+- Some software recognizes geographic coordinates and will apply a map projection transformation to improve the display of the data.
 
 
 ### Points, Lines, & Polygons
