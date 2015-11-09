@@ -105,7 +105,7 @@ The R packages used in this tutorial provide the following functionality:
 <br>
 
 ### Topic 1: Creating maps with built-in map data
-Lots of R packages install demo or provide functions for accessing remote data. We will start by creating some maps with built in data.
+Lots of R packages install demo data or provide functions for accessing remote data. We will start by creating some maps with built-in data.
 
 ### The maps package
 Let's retrieve geographic data for creating a map from the **maps** package.
@@ -117,7 +117,6 @@ You can use the command **data()** to see all data available from all of the ins
 data(package="maps") # See what data are available in maps package
 ```
 
-<br>
 
 Once we load the package, we can load a data set and explore it.
 ```{r, eval=FALSE}
@@ -128,7 +127,7 @@ world <- map_data("world")  # Load the world data into the object called world
 
 
 ### ggplot2
-Created by Hadley Wickham, **ggplot2** is perhaps the most widely used R package for creating plots, charts & maps. People who use ggplot are used to its syntax. However, newcomers to the package may find it pretty wacky. 
+Created by Hadley Wickham, **ggplot2** is perhaps the most widely used R package for creating plots, charts & maps. People who use ggplot are familiar with its syntax. However, newcomers to the package may find it non-intuitive. 
 
 There are many online tutorials and cheat-sheets for using ggplot. Some starting points:
 
@@ -137,7 +136,6 @@ There are many online tutorials and cheat-sheets for using ggplot. Some starting
 - http://zevross.com/blog/2014/08/04/beautiful-plotting-in-r-a-ggplot2-cheatsheet-3/
 - http://zevross.com/blog/2014/07/16/mapping-in-r-using-the-ggplot2-package/
 
-<br>
 
 ### ggplot2 - jump start
 
