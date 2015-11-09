@@ -11,7 +11,7 @@ output: html_document
 - Prepared for the D-lab workshop Creating Maps in R
 - By Patty Frontiera & Shinhye Choi
 - See: dlab.berkeley.edu
-- contact: schoi [at] berkeley.edu for suggestions
+- contact: schoi [at] berkeley.edu with suggestions
 
 ### References
 - http://rpubs.com/ajlyons/rgeospatialdata
@@ -45,6 +45,13 @@ output: html_document
 
 
 ## Getting Started
+
+### Instructor notes
+
+- This tutorial should take two hours with instructor guidance.
+- The code is a bit long and complex and is meant to serve as a reference rather than to be memorized. Thus, make this document available for students to copy from or cut and paste.
+- There are several opportunities for students to extend or change the code for practice. More exercises can be added or the students can be encouraged to follow the related tutorials.
+- Leave time for students to enter and run the code. Take a break every 20 minutes to get everyone caught up.
 
 ### Clean slate 
 
