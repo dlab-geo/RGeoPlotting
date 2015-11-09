@@ -405,7 +405,7 @@ Now, remove the grid lines - what code addtion makes that happen?
 ggplot(states_dat, aes(x=long, y=lat)) +
   geom_polygon(aes(group=group, fill=Population),colour="NA") +
   coord_map("mercator") +
-  labs(title = "Population by State", fill = "") +
+  labs(title = "Population by State") +
   theme_nothing(legend=TRUE)
 ```
 *What else did we change above and what did that change do?*
@@ -429,7 +429,7 @@ ggplot(states_dat, aes(x=long, y=lat)) +
   geom_polygon(aes(group=group, fill=Population),colour="NA") +
   scale_fill_distiller(palette = "Reds") +
   coord_map("mercator") +
-  labs(title = "Population by State", fill = "") +
+  labs(title = "Population by State") +
   theme_nothing(legend=TRUE) +
   guides(fill = guide_legend(reverse = TRUE))
 ```
