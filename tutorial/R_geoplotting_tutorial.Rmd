@@ -64,7 +64,7 @@ rm(list = ls())
 <br>
 Set your working directory (or folder). This is where R will write ouput files and look for input.
 
-```{r}
+```
 setwd("~/Documents/Dlab/dlab_workshops/geoplotting/DlabSpatialPlot") # or local folder
 #setwd("~/Dropbox/Dlab/SpatialPlot")      # Could also be a dropbox folder (smart!)
 ```
