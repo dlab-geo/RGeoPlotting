@@ -1,0 +1,936 @@
+---
+title: "Creating Maps in R"
+author: "Patty Frontiera & Shinhye Choi"
+date: "November 7, 2015"
+output: html_document
+---
+
+## Introduction
+
+### About
+- Prepared for the D-lab workshop Creating Maps in R
+- By Patty Frontiera & Shinhye Choi
+- See: dlab.berkeley.edu
+- contact: schoi [at] berkeley.edu for suggestions
+
+### References
+- http://rpubs.com/ajlyons/rgeospatialdata
+
+### Recommended Related Tutorials
+- http://www.kevjohnson.org/making-maps-in-r/
+- http://blog.dominodatalab.com/geographic-visualization-with-rs-ggmaps/
+- http://rforpublichealth.blogspot.com/2015/10/mapping-with-ggplot-create-nice.html
+- http://eriqande.github.io/rep-res-web/lectures/making-maps-with-R.html
+
+### Goals
+- Provide example code & tips for creating maps in R using ggplot2 & ggmaps
+- Explore some of the sample data provided by the map package
+- Take an introductory look at methods for working with spatial data with the sp, rgdal, and x packages and mapping them with R's base() plotting functionality.
+- Explore some basic map types including dot maps, proportional symbol maps, and choropleth maps.
+
+### Use Cases
+
+- Adding reference map to your document or presentation for reference.
+- Adding point data to a basemap
+- Creating maps using your own data
+
+### Prerequisites
+
+- Basic knowledge of R assumed.
+
+### Limitations
+
+- This is a tutorial with a limited scope, not a comprehensive reference.
+- This tutorial only addresses the use of vector data (points, lines, and polygons) and not raster (grid) data.
+
+
+## Getting Started
+
+### Clean slate 
+
+Make sure what you do and what you see in R is not a result of commands you previously ran. To do this, remove any objects in memory or your environment.
+
+```{r}
+rm(list = ls())
+```
+
+<br>
+Set your working directory (or folder). This is where R will write ouput files and look for input.
+
+```{r}
+setwd("~/Documents/Dlab/dlab_workshops/geoplotting/DlabSpatialPlot") # or local folder
+#setwd("~/Dropbox/Dlab/SpatialPlot")      # Could also be a dropbox folder (smart!)
+```
+
+### Packages
+
+Below is some useful code that will:
+
+- identify the packages, or libraries, you will use,
+- check to see if they are installed,
+- install them if they are not already installed, and 
+- load them into your R environment so they are available to use.
+
+```{r, eval=FALSE}
+#required.pkg <- c("ggmap", "rgdal", "rgeos", "maptools", "dplyr", "tidyr", "tmap", "sp", "ggplot2", "scales", "maps")
+
+required.pkg <- c("maps","ggplot2","ggmap", "rgdal", "sp", "dplyr", "tidyr", "scales", "RColorBrewer","classInt")
+pkgs.not.installed <- required.pkg[!sapply(required.pkg, function(p) require(p, character.only=T))]
+install.packages(pkgs.not.installed, dependencies=TRUE)
+
+# Load all libraries them all at once.
+lapply(required.pkg, library, character.only = TRUE)         
+
+```
+
+### About the Packages 
+
+The R packages used in this tutorial provide the following functionality:
+
+- **maps**: a package for accessing geographic data for regions in the world.
+- **ggplot2**: a powerful plotting library that supports map creation among other plot types
+- **ggmap**: extends ggplot2 to provide access to online basemaps (e.g. Google Maps, OpenStreetMaps) and online services like the Google Geocoder
+- **rgdal**: for importing and transforming different spatial data types and providing access to proj4 library for working with map projections and coordinate systems
+- **dplyr**, **tidyr**: for data cleaning
+- **scales**: for data scaling transformation functions to improve visualizations
+- **RColorBrewer**: for selecting predefined color palettes.
+- **classInt**: for identifying break points based on data set values using standard classification schemes - equal interval, quantile, natural breaks, standard deviations, etc.
+
+<br>
+
+### Topic 1: Creating maps with built-in map data
+Lots of R packages install demo or provide functions for accessing remote data. We will start by creating some maps with built in data.
+
+### The maps package
+Let's retrieve geographic data for creating a map from the **maps** package.
+You can use the command **data()** to see all data available from all of the installed packages and **data(package="package-name")** to see data included in a specific R package.
+
+
+```{r, eval=FALSE}
+#library(maps) #Load the maps package if not already loaded
+data(package="maps") # See what data are available in maps package
+```
+
+<br>
+
+Once we load the package, we can load a data set and explore it.
+```{r, eval=FALSE}
+world <- map_data("world")  # Load the world data into the object called world
+                            # map_data is a function in ggplot for loading data from
+                            # the maps package
+```
+
+
+### ggplot2
+Created by Hadley Wickham, **ggplot2** is perhaps the most widely used R package for creating plots, charts & maps. People who use ggplot are used to its syntax. However, newcomers to the package may find it pretty wacky. 
+
+There are many online tutorials and cheat-sheets for using ggplot. Some starting points:
+
+- http://docs.ggplot2.org
+- https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf
+- http://zevross.com/blog/2014/08/04/beautiful-plotting-in-r-a-ggplot2-cheatsheet-3/
+- http://zevross.com/blog/2014/07/16/mapping-in-r-using-the-ggplot2-package/
+
+<br>
+
+### ggplot2 - jump start
+
+Use the ggplot2 package to create a map of the world data.
+```{r, eval=FALSE}
+#library(ggplot2) # load the library if not already loaded
+ggplot(world, aes(x=long, y=lat)) +   
+  geom_path(aes(group=group))
+
+# or
+ggplot() + geom_path(data=world, aes(x=long, y=lat, group=group))  
+```
+
+#### Important notes:
+
+- The plus sign should always be on the right, else may cause errors!
+- The second syntax structure is clearer when layering multiple geom_ types.
+- The **aes()** or aesthetic function maps the data to specific plot elements. 
+
+See the ggplot2 documentation to dive into the details.
+
+
+
+### More on the World
+
+Let's talk about the **world** object 
+```{r, eval=FALSE}
+head(world) # take a look at the first few rows of data
+tail(world) # take a look at the last few rows of data
+dim(world) # how many rows and columns
+str(world) # take a look at the data types
+```
+- What do they mean - group, order? 
+- Why do they matter?
+
+
+### Structure of a ggplot data frame for geographic data 
+
+- **long** is longitude in decimal degrees as a numeric data type. Values range from +-180 degrees east or west of prime meridian (running through Greenwich, England - just outside of London).
+- **lat** is latitude. Latitude values range from +-90 degrees north or south of the equator.
+- **group** is a set of points. One lat/long pair is a point, points with the same group can be connected as a path/line or polygon. For example each island in the United Kingdom is a group.
+- **order** tells us the order with which to connect the points (think connect-the-dots).
+- **region** and subregion identify named features. All island groups within the United Kingdom have the region value "UK" and "Scotland" is one subregion.
+
+
+### Spatial Data in R 
+
+Is the R data object **world** an example of geospatial data? In brief, geospatial data, or more simply spatial data, are data that specify locations on the surface of the earth and may also include attributes that describe that location. Since the **world** data specify locations with geographic coordinates - longitude (long) and latitude (lat) - then it is geographic data. But it is not a spatial data object. A spatial data object in R (or in other software) specifies locations using spatial data types (points, lines, polygons, grids) and has spatial functions for operating on those spatial data types. In contrast,the world data object stores coordinate values for longitude and latitude as numbers, similar to weight and height. Geographic data that are not spatial data objects rely on libraries, like ggplot2, to construct geographic features with the coordinate information. This is a little more work and a bit more limited. But it is in some ways a more natural progression for people who have not worked with spatial data types. We will look at spatial data objects in R a bit later on.
+
+### Mapping regions
+
+- A country may have multiple polygons, defined by groups of points:
+- Which country do you think should have more data points? why?
+```{r, eval=FALSE}
+length(which(world$region=="India"))               
+length(which(world$region=="Canada"))
+```
+
+### Plotting a Region
+
+Let's create a map of one region - India
+```{r, eval=FALSE}
+ggplot(world[which(world$region=="India"),], aes(x=long, y=lat)) +   
+  geom_path(aes(group=group)) 
+
+#or
+
+ggplot() +
+  geom_path(data=world[which(world$region=="India"),], aes(x=long, y=lat, group=group))
+```
+
+### What didn't look right? 
+
+Compare that map to this one:
+```{r, eval=FALSE}
+ggplot(world[which(world$region=="India"),], aes(x=long, y=lat)) +   
+  geom_path(aes(group=group)) + coord_map("mercator") 
+
+ggplot() +
+  geom_path(data=world[which(world$region=="India"),], aes(x=long, y=lat, group=group)) +
+   coord_map("mercator") 
+```
+Does that look better?
+
+
+### Map Projectons & Coord Refeference Systems
+If you are going to be working with geographic data, you *need* to learn about map projections and coordinate reference systems. In depth treatment of those topics is beyond the scope of this tutorial. Here are some useful references:
+
+ - Bolstad, P.  ch 3 available online.
+- ESRI, 2004. Understanding Map Projections, pp 1-21. (available via web search or on class bCourses site under files). 
+
+That said, here are a few important notes word about map projectons & coordinate refeference Systems (CRS):
+
+- **Geographic CRS** - coordinates specify geographic locations on a 3D sphere and look weird when displayed on a 2D planar surface like a map or computer screen.
+- **Map Projection** - a CRS that employs a mathematical transformation to project geographic coordinates onto a 2D surface.
+- All projections introduce distortion in shape, area, distance and,or direction. Map projections are specified to minimize one or more of these sourses of distortion for one region.
+- You should (almost) never do spatial analysis using geographic coordinate data - always use projected data! Again, this topic is beyond our scope but is important to keep in mind.
+
+Thus far, we have used the *coord_map()* function to call the **mapproj** package from within ggplot. This package provides a simplified way of using map projections and coordinate systems. The *rgdal* package, which uses the *proj4* library, includes a much more sophisticated set of tools for handling CRSs.
+
+### Now map Canada
+Edit the code we used above to create a map of Canada or another country of your choice.
+
+### Exploring North America
+
+Let's subset the **world** data to extract North America locations only.
+```{r, eval=FALSE}
+north_a_countries <- map_data("world", region=c("USA", "Canada"))
+north_a <- subset(north_a_countries, long < -50 & lat > 20)
+```
+What is the difference between **north_a_countries** and **north_a**?
+
+### Plot North America using geographic coordinates
+```{r, eval=FALSE}
+ggplot(north_a, aes(x=long, y=lat)) +   
+  geom_path(aes(group=group))
+
+ggplot() + geom_path(data=north_a, aes(x=long, y=lat, group=group))
+```
+
+### Assign a plot to a variable name
+```{r, eval=FALSE}
+na_plot <- ggplot() + geom_path(data=north_a, aes(x=long, y=lat, group=group))
+na_plot
+```
+
+Be sure to click on the zoom button in RStudio to see a larger map image.
+Where is the distortion in that last plot?
+
+### Plot North America using the mercator map projections
+```{r, eval=FALSE}
+na_plot + coord_map("mercator")
+```
+Is there still distortion? Is it the same as before?
+
+### Discussion (instructor can remove this section)
+
+- The data mapped with geographic coordinates creates distortion in the east-west direction resulting in a stretched out NA. This stretched look is clue that geographic coordinates are being used to create a map.
+- The data mapped with the mercator map projection looks better for USA but grossly exaggerates areas in all directions as you get closer to the poles.
+- Some software reconizes geographic coordinates and will apply a map projection transformation to improve the display of the data.
+
+
+### Points, Lines, & Polygons
+
+What's different in the code below and why:
+```{r, eval=FALSE}
+ggplot(north_a, aes(x=long, y=lat)) +
+  geom_polygon(aes(group=group)) + coord_map("mercator")
+
+ggplot(north_a, aes(x=long, y=lat)) +
+  geom_point(aes(group=group)) + coord_map("mercator")
+
+ggplot(north_a, aes(x=long, y=lat)) +
+  geom_path(aes(group=group)) + coord_map("mercator")
+```
+
+### Symbolizing Paths (or Lines)
+What's different below and why?
+```{r, eval=FALSE}
+ggplot(north_a, aes(x=long, y=lat)) +
+  geom_path(aes(group=group), color="red") + coord_map("mercator")
+```
+
+### Symbolizing Polygons
+What is different in the lines of code below and what is the effect?
+```{r, eval=FALSE}
+ggplot(north_a, aes(x=long, y=lat)) +
+  geom_polygon(aes(group=group, fill=region)) + coord_map("mercator")
+
+ggplot(north_a, aes(x=long, y=lat)) +
+  geom_polygon(aes(group=group, fill=region), color="black") + coord_map("mercator")
+
+```
+
+### Using Color Palettes
+Save the plot created by the code above and then add a color palette to fill the regions.
+```{r, eval=FALSE}
+#save it - see code we used above to assign a plot to a variable name
+#myplot <- ???
+
+myplot + scale_fill_brewer(palette="Set3")
+```
+
+
+### ColorBrewer Package
+Read the package help doc on the ColorBrewer Package
+See aslo: colorbrewer.org
+
+```{r, eval=FALSE}
+?ColorBrewer
+display.brewer.pal(3,"Set3")
+```
+
+### Types of palettes:
+
+- categorical or qualitative - complementary colors
+- Sequential - imply higher to lower ranks or values
+- Divergent - emphasize outliers
+
+```{r, eval=FALSE}
+display.brewer.all(type="qual")
+display.brewer.all(type="seq")
+display.brewer.all(type="div")
+```
+
+### Exercise - color symbology
+Change the fill palette and the outline color for the previous map. Experiment with several fo the brewer palettes.
+
+### Topic: Creating choropleth maps
+Choropleth maps symbolize areas by values. To create a choropleth map you need to link the attribute data to the spatial data (polygons).  We will do this with in the following section by loading data for US states from the maps package and then linking the data frame of state attributes to the state polygons based on state id or state name.
+
+The maps package has a data set called **state**. Let's load it and map it.
+```{r, eval=FALSE}
+states <- map_data("state")  #  See ?map_data for details
+head(states)
+ggplot(states, aes(x=long, y=lat)) +
+  geom_polygon(aes(group=group, fill=region), colour="black", fill="white") 
+```
+
+### State Attribute Data
+The state data includes a matrix called *state.x77* that has key variables for each state. Let's take a look.
+```{r, eval=FALSE}
+data(state)
+state_att <- state.x77     # rename it
+head(state_att)
+str(state_att)
+unique(states$region)
+unique(row.names(state_att))   # Alaska/DC not in both data sets, but it's okay. why?
+                               # tolower state names
+#convert to a data frame
+state_att <- as.data.frame(state_att[-which(row.names(state_att)=="Alaska"),])  # not necessary. why?
+
+```
+
+### Combining Spatial and Attribute data
+Let's merge the two data sets so that we can map the regions by the attribute values. In order to merge/combine/link two data frames they must share a common set of values. If you *head* both **states** and **state_att** you will see those common values.
+```{r, eval=FALSE}
+state_att$name <- tolower(row.names(state_att)) # why is this necessary?
+states_dat <- merge(states, state_att, by.x="region", by.y="name")
+ggplot(states_dat, aes(x=long, y=lat)) +
+  geom_polygon(aes(group=group, fill=Population),colour="black")     
+``` 
+*Wait, is something wrong with the output map and/or data?*
+
+### Order matters!
+You need to rearrange the data by group and order. REMEMBER WHY?
+We can use the **arrange** function in the **plyr** package to do this.
+```{r, eval=FALSE}
+states_dat <- arrange(states_dat, group, order)
+ggplot(states_dat, aes(x=long, y=lat)) +
+  geom_polygon(aes(group=group, fill=Population), colour="black") +
+  coord_map("mercator")                        
+```
+
+### Add a Title
+Use the **labs** option to add a title to the map.
+```{r, eval=FALSE}
+ggplot(states_dat, aes(x=long, y=lat)) +
+  geom_polygon(aes(group=group, fill=Population),colour="black") +
+  coord_map("mercator") +
+  labs(title = "Population by State")
+```
+
+### Clean up Plot
+Now, remove the grid lines - what code addtion makes that happen?
+```{r, eval=FALSE}
+ggplot(states_dat, aes(x=long, y=lat)) +
+  geom_polygon(aes(group=group, fill=Population),colour="NA") +
+  coord_map("mercator") +
+  labs(title = "Population by State", fill = "") +
+  theme_nothing(legend=TRUE)
+```
+*What else did we change above and what did that change do?*
+
+### More color changes 
+The fill colors in the map created by the code above look too dark. Let's use the **scale_fill_distiller()** option to change them.
+```{r, eval=FALSE}
+ggplot(states_dat, aes(x=long, y=lat)) +
+  geom_polygon(aes(group=group, fill=Population),colour="NA") +
+  scale_fill_distiller() +
+  coord_map("mercator") +
+  labs(title = "Population by State", fill = "") +
+  theme_nothing(legend=TRUE)
+```
+**Try It** - Take a look at the **?scale_fill_distiller** help page. Try changing some of the options, eg add *palette="Reds" inside scale_fill_distiller().
+
+### Reverse the legend
+Use the guides option to reverse the legend order. (**?guides**)
+```{r, eval=FALSE}
+ggplot(states_dat, aes(x=long, y=lat)) +
+  geom_polygon(aes(group=group, fill=Population),colour="NA") +
+  scale_fill_distiller(palette = "Reds") +
+  coord_map("mercator") +
+  labs(title = "Population by State", fill = "") +
+  theme_nothing(legend=TRUE) +
+  guides(fill = guide_legend(reverse = TRUE))
+```
+
+### Save the map
+Use *ggsave()* to save the map to an image file. See
+By default it saves the last ggplot() that was created.
+```{r, eval=FALSE}
+ggsave("popmap.png", width = 9, height = 9) 
+```
+
+### Exercise - subset California
+Look back to the previous code where we subset North American Countries using coordinates values.
+
+- Subset CA between +32 and +42.5 degrees latitude and 114 and -124 longitude.
+- Plot CA with and without *+ coord_map("mercator")*. 
+- Add some custom color symbology using a qualitative palette and white outlines
+- Add a title
+- use a different ggplot theme (eg theme_bw or theme_minimal). See **?ggtheme** for help.
+
+### Give up?
+```{r, eval=FALSE}
+cal <- subset(states, (long < -114 & long > -124) & (lat > 32 & lat < 42.5))
+ggplot(cal, aes(x=long, y=lat)) +
+  geom_polygon(aes(group=group, fill=region), color="white") + coord_map("mercator") +
+  scale_fill_brewer(palette="Set2") +
+  theme_bw() +
+  labs(title="this is where it is at")
+```
+
+### GGMAP Package
+*ggmap* extends ggplot2 with functionality for incorporating popular online basemaps like Google Maps data and OpenStreetMaps data. It also has a function for geocoding. See *?ggmap* for details on this fantastic package. We will explore some of its functionality.
+
+## Geocoding
+Geocoding is the process of determining the geographic coordinates for place names, zip codes, and street addresses. The details beyond scope of course (see Dec D-Lab workshop). A function for accessing the Google Maps geocoding service is provided with *ggmap*.
+
+Say it & Save it - you only get 2500 free per day with Google Geocoding Service
+```{r, eval=FALSE}
+#library(ggmap) #load if not already loaded
+geocode("Berkelely, CA", source="google")
+berkeley_loc <- as.numeric(geocode("Berkelely, CA",source="google"))
+```
+What's different between the geocode() statement output and the berkeley_loc data?
+
+Now, add the point for Berkeley to the map of CA. Note the syntax used to layer a point on top of a polygon.
+```{r, eval=FALSE}
+#Assign basic map to mymap
+mymap <- ggplot(cal, aes(x=long, y=lat)) +
+  geom_polygon(aes(group=group, fill=region)) + coord_map("mercator")
+mymap
+
+#add point
+mymap <- mymap + geom_point(x=berkeley_loc[1],y=berkeley_loc[2], col="red",size=10)
+mymap
+
+# Label the point
+mymap <- mymap + geom_text(data = NULL,x=berkeley_loc[1]+1,y=berkeley_loc[2], label = "Berkeley")
+
+# Display the map with the labeled point
+mymap
+```
+Why did we add a *+1* to the x coordinate for the text lable Berkeley?
+
+
+### Save the plot with ggsave
+This time we save a named ggplot object rather than the last ggplot.
+```{r, eval=FALSE}
+ggsave("mymap.png", mymap, width = 9, height = 9) 
+```
+
+
+### Creating maps with GGMAP
+
+A ggmap function for creating a quick map is **qmap()**. This function retrieves map data (raster basemaps) using the get_map() and then plots it. Let's try it. See **?qmap** and **?get_map** for details. 
+
+```{r, eval=FALSE}
+qmap(location="uc berkeley", zoom=10) # what about changing that zoom level? what value gets you a better map of ucb
+
+#change the basemap
+qmap(location="uc berkeley", zoom=15, maptype = "toner-lite", source = "stamen") 
+
+```
+**Try It** - Try creating a quick map using one of the other ggmap basemaps.
+
+
+### Center a qmap around a point
+and add that point on the map!
+```{r, eval=FALSE}
+sather_gate_location = c(lon = -122.2616814, lat = 37.8702548) #from search in maps.google.com
+
+qmap(location=sather_gate_location, zoom=14, maptype = "toner-lite", source = "stamen") +  geom_point(x=sather_gate_location[1],y=sather_gate_location[2], col="red",size=10)
+```
+What's different about the *location* value entered above compared to the previous qmap of UC Berkeley?
+
+### Geocode an Address
+Let's use the geocode() function to get the coordinates for an address. We can then repeat the above process of centering the map at that location and adding the point to the map.
+```{r, eval=FALSE}
+# Map of my party location
+geocode("2315 Durant Ave, Berkeley, CA 94704", source="google") #run on command line - but we need different format
+
+party_loc = as.numeric(geocode("2315 Durant Ave, Berkeley, CA 94704", source="google"))
+
+#now add a point so we know where we going
+qmap(location=party_loc, zoom=14) + 
+  geom_point(x=party_loc[1],y=party_loc[2], col="orange",size=6)
+
+#Another style - http://blog.dominodatalab.com/geographic-visualization-with-rs-ggmaps/
+usa_center = as.numeric(geocode("United States",source="google"))
+USAMap = ggmap(get_googlemap(center=usa_center, scale=2, zoom=4), extent="normal") 
+USAMap
+```
+
+**Try It** - Try mapping an address that you know!
+
+### Point maps
+The most common types of point maps are:
+
+- **dot maps** which plot point locations using a single color or icon
+- **categorical dot maps** which color code the points by category
+- **proportional symbol maps** which scale the symbol size based on an attribute value.
+
+Let's fetch some data on US cities from the maps package and create some point maps.
+```{r, eval=FALSE}
+data(us.cities)
+str(us.cities)
+
+#Subset cities - just bay area - get lat lon from map grid output by ggmap
+bayarea_map <-get_map('Berkeley',zoom=8)
+ggmap(bayarea_map)
+
+bayarea_cities <- subset(us.cities, (long < -120 & long > -124) & (lat > 36 & lat <40)) # 
+#How many cities do we have?
+nrow(bayarea_cities)
+
+#now plot cities - a dot map
+ggmap(bayarea_map) +
+  geom_point(data=bayarea_cities, aes(x=long, y=lat))
+
+#change col or color or colour
+ggmap(bayarea_map) +
+  geom_point(data=bayarea_cities, aes(x=long, y=lat), col="orange") 
+
+#change size
+ggmap(bayarea_map) +
+  geom_point(data=bayarea_cities, aes(x=long, y=lat), col="orange", size=4)
+
+#change shape so we can specify fill color and outline color
+ggmap(bayarea_map) +
+  geom_point(data=bayarea_cities, aes(x=long, y=lat), col="white", fill="orange", size=4, shape=21)
+
+# Proportional symbol map
+# Scale size by population 
+ggmap(bayarea_map) +
+  geom_point(data=bayarea_cities, aes(x=long, y=lat, size=pop)) 
+```
+
+<br>
+
+### Plotting Your Data
+Thus far we have created maps using data from the R maps and ggmaps packages. Now let's try creating maps from data that you have on your computer - downloaded for this tutorial.
+
+- Let's read in data from a CSV file: cafes where I go often. 
+- Let's not argue about my personal preferences!
+
+
+#### Load the data and take a look at it
+```{r, eval=FALSE}
+dat <- read.csv("cafe.csv")
+head(dat)
+str(dat)
+```
+
+
+#### Add the cafe data to a ggmap
+```{r, eval=FALSE}
+map <- get_map("Berkeley", zoom=14)  
+
+# Let's create a cateogry dot map (or pin map)
+ggmap(map) +
+  geom_point(aes(x = long, y = lat, size = 4, colour = I(name)), 
+             data = dat, alpha = .9)                # geom_points!
+
+#Let's create a proportional symbol map
+#let's scale the symbol size by the price but make it a bit bigger by adding 2
+
+ggmap(map) +
+  geom_point(aes(x = long, y = lat, size = price), colour = "red", 
+             data = dat, alpha = 1)                # geom_points!
+
+#Add title - remember how?
+g <- ggmap(map) +
+  geom_point(aes(x = long, y = lat, size = price), colour = "red", 
+             data = dat, alpha = 1)
+ 
+#g <- g + <add code for title>
+g
+
+```
+
+### Mapping your own spatial data
+
+Thus far we have mapped data where the geographic locations are stored in a data frame as numbers in columns labeled *lat* and *lon*. We will now work with explicit spatial data which store geographic locations aspoints, lines and polygons objects. FYI here is a really nice cheat sheet for working with spatial data in R:
+
+- http://www.maths.lancs.ac.uk/~rowlings/Teaching/UseR2012/cheatsheet.html
+
+### Spatial Data Objects - library(sp)
+Let's take a look at the different classes of spatial data objects in the *sp* package:
+```{r, eval=FALSE}
+getClass("Spatial") 
+# Take a closer look at spatial points
+getClass("SpatialPoints")
+```
+
+### SpatialPoints
+
+We can create a Spatial Points object from the cafe **dat** data frame. First, extract the coordinates (long, lat) from the data frame.
+
+```{r, eval=FALSE}
+dat_coords <- cbind(dat$long, dat$lat)
+row.names(dat_coords) <- dat$name #keep the names of the cafes as the row.names
+str(dat_coords)
+```
+
+### Create a SpatialPoints object
+Let's create a spatialpoints data object from the cafe data (dat)
+```{r, eval=FALSE}
+dat_sp <- SpatialPoints(dat_coords)
+
+# Define the CRS for the SpatialPoints object
+proj4string(dat_sp) <- CRS("+proj=longlat + ellps=WGS84")
+
+# Note we could do those two steps in one line of code - as the documentation shows us
+#dat_sp <- SpatialPoints(dat_coords, proj4string=CRS("+proj=longlat + ellps=WGS84"))
+# But it is good to know you can assign a CRS to a spatial object at any time
+
+# Take a look at the Object
+class(dat_sp)
+str(dat_sp)
+summary(dat_sp)
+
+#How many and what slots are in the SpatialPoints Object dat_sp?
+slot(dat_sp, "coords")
+bbox(dat_sp)
+proj4string(dat_sp)
+```
+
+#### We can subset the spatialpoints data: 
+I want to know the location of Strada..
+```{r, eval=FALSE}
+coordinates(dat_sp)[which(row.names(dat_sp)=="strada"),]
+```
+
+### Create Maps with R Base Plotting System
+
+A basic map that plots 
+```{r, eval=FALSE}
+plot(dat_sp)
+points(coordinates(dat_sp)[which(row.names(dat_sp)=="strada"),1],
+       coordinates(dat_sp)[which(row.names(dat_sp)=="strada"),2],col="red", pch=20)
+```
+
+
+### Create a SpatialPointsDataFrame Object
+
+A SpatialPointsDataFrame stores the data frame in the @data slot of the object. See **?SpatialPointsDataFrame** for details on this class of object.
+
+```{r, eval=FALSE}
+
+cafe_spdf <- SpatialPointsDataFrame(cbind(dat$long,dat$lat),data=dat,
+                                     proj4string=CRS("+proj=longlat + ellps=WGS84"))
+
+#examine it
+class(cafe_spdf)
+str(cafe_spdf)
+
+#map it
+plot(cafe_spdf)
+points(cafe_spdf[which(cafe_spdf$name=="strada"),], col="red", pch=20)
+
+```
+
+### Explore spatial data with rgdal package
+*rgdal* is an R port of the powerful and widely used GDAL/OGR libraries. See gdal.org for details on its functionality.
+
+Let's take a look at some data wec have in our working directory and load then load it into R.
+
+```{r, eval=FALSE}
+# crs and projection
+# ### codes for plots included in the slides
+ogrInfo(".", "uc_bldgs")  #look at the data contents
+uc_buildings <- readOGR(dsn=".", layer="uc_bldgs") #read it into R
+summary(uc_buildings)
+class(uc_buildings)
+```
+What type of object is **uc_buildings?**
+
+#### Let's load some other data
+```{r, eval=FALSE}
+ogrInfo(".", "uc_bnd")
+uc_boundary <- readOGR(dsn=".", layer="uc_bnd") 
+
+ogrInfo(".", "censusblk")
+census <- readOGR(dsn=".", layer="censusblk") 
+```
+
+#### Take a few minutes to look at some different types of Spatial data objects
+```{r, eval=FALSE}
+# SpatialLines
+getClass("Line")
+getClass("Lines")
+getClass("SpatialLines")
+
+# SpatialPolygons data
+getClass("SpatialPolygons")
+```
+
+### Map Overlays
+
+Let's make a map of all of our data. Note the new commands.
+```{r, eval=FALSE}
+plot(uc_boundary, border="blue")
+plot(census, add=T)
+plot(uc_buildings, col="red", add=T)
+points(cafe_spdf, col="green")
+```
+
+#### Why can't we see our cafe points?
+```{r, eval=FALSE}
+proj4string(cafe_spdf) == proj4string(uc_buildings)
+```
+
+### Transforming CRS
+In order to map or analyze spatial data in the same coordinate space they must have the same
+coordinate systems. You can use the spTransform() function to transform, or reproject, spatial data from one CRS to another.
+
+```{r, eval=FALSE}
+uc_boundaryT  <- spTransform(uc_boundary, CRS("+proj=longlat +ellaps=WGS84"))
+censusT <- spTransform(census, CRS("+proj=longlat +ellaps=WGS84"))
+uc_buildingsT <- spTransform(uc_buildings,CRS(proj4string(censusT)))
+```
+
+- What's different about that last line?
+- Re-create the map using the code above - do you see the cafes now?
+
+```{r, eval=FALSE}
+plot(uc_boundaryT, border="blue")
+plot(censusT, add=T)
+plot(uc_buildingsT, col="red", add=T)
+points(cafe_spdf, col="green", pch=20)
+```
+
+#### More plots
+
+```{r, eval=FALSE}
+plot(uc_boundaryT)
+plot(censusT, add=T)
+points(-122.258016, 37.870151, col="blue", pch=16, cex=2)
+points(dat$long, dat$lat, col="red", pch=16, cex=2)
+
+# Save our map to a PDF File
+pdf(file = paste("types", Sys.Date(), ".pdf", sep = ""),
+    height = 6, width = 8)
+plot(dat$long, dat$lat, col="red", pch=16, cex=2, axes=F)
+dev.off()
+
+pdf(file = paste("types1", Sys.Date(), ".pdf", sep = ""),
+    height = 6, width = 8)
+plot(uc_boundaryT)
+plot(censusT, add=T)
+points(-122.258016, 37.870151, col="blue", pch=16, cex=2)
+points(dat$long, dat$lat, col="red", pch=16, cex=2)
+dev.off()
+
+pdf(file = paste("types2", Sys.Date(), ".pdf", sep = ""),
+    height = 6, width = 8)
+plot(uc_boundaryT)
+plot(censusT, add=T)
+points(-122.258016, 37.870151, col="blue", pch=16, cex=2)
+points(dat$long, dat$lat, col="red", pch=16, cex=2)
+lines(dat$long, dat$lat, col="red", lwd=2)
+dev.off()
+
+```
+
+
+### Map the Campus
+
+It's best practice to map projected spatial data (not geographic coordinates).
+```{r, eval=FALSE}
+
+# look into the data
+plot(uc_buildings)
+plot(uc_buildings[which(uc_buildings$NAME2=="Barrows Hall"),], add=TRUE, col="blue")
+plot(uc_buildings[which(uc_buildings$NAME2=="Lawrence Hall of Science"),], add=TRUE, col="red")
+plot(uc_buildings[which(uc_buildings$NAME2=="Sproul Hall"),], add=TRUE, col="red")
+
+# plot all maps
+plot(uc_buildings)
+plot(uc_boundary, add=T, border="blue", lwd=2)
+plot(census, add=T, border="grey")
+```
+
+### Map Census Data for Berkeley
+```{r, eval=FALSE}
+# let's look at the census attribute data
+# plot white pop density for each block
+# don't use class as a var name as it is reserved word
+myclass <- classIntervals(census$WHITE, 5, style = "quantile")
+colpal<- findColours(myclass, brewer.pal(5, "BuGn"))
+plot(census, border="grey", col=colpal)
+plot(uc_boundary, add=T, border="blue", lwd=2)
+plot(uc_buildings, add=T)
+
+# pop density 
+myclass <- classIntervals(census$POP_DENS, 5, style = "quantile")
+colpal<- findColours(myclass, brewer.pal(5, "OrRd"))
+plot(census, border="grey", col=colpal)
+plot(uc_boundary, add=T, border="blue", lwd=2)
+plot(uc_buildings, add=T)
+
+# rent
+myclass <- classIntervals(census$RENT, 5, style = "quantile")
+colpal<- findColours(myclass, brewer.pal(5, "PuRd"))
+plot(census, border="grey", col=colpal)
+plot(uc_boundary, add=T, border="blue", lwd=2)
+plot(uc_buildings, add=T)
+```
+
+### Map Census Data on top of Google Maps
+#### After: http://www.kevjohnson.org/making-maps-in-r-part-2/
+Let's bring this tutorial full circle by plotting our spatial data objects on top of Google Maps using ggplot and ggmap.  In order to overlay our data on ggmap() basemaps we must use data in geographic coordinates.
+
+First, create a data frame that ggmap/ggplot can map
+```{r, eval=FALSE}
+
+# First add a unique id and coordinates to the census SPDF
+censusT$geoid <- with(censusT@data, paste0(STATE, COUNTY, TRACT, BLOCK))
+censusT$X <- coordinates(censusT)[,1]
+censusT$Y <- coordinates(censusT)[,2]
+
+# Use fortify() to make the census data an object that ggplot can map
+plotData <- fortify(censusT, data=censusT@data, region="geoid")
+
+head(plotData)
+
+#now map it
+map <- get_map("Berkeley", zoom=13)  
+ggmap(map) + geom_polygon(data=plotData, aes(x=long, y=lat, group=group))
+
+# Add transparency to better see reference basemap
+ggmap(map) +
+  geom_polygon(data=plotData, aes(x=long, y=lat, group=group), alpha=0.5)
+```
+
+#### Now, join the census data to the geo data frame.
+```{r, eval=FALSE}
+
+plotData <- merge(plotData,censusT@data, by.x="id", by.y="geoid")
+head(plotData)
+
+#map it - color regions by census variable
+ggmap(map) +
+  geom_polygon(data = plotData, aes(x = long, y = lat, group = group, 
+                                    fill = POP_DENS), color = "black", size = 0.25) +
+  coord_map()
+
+# Too dark - try this
+myplot <- ggmap(map) +
+  geom_polygon(data = plotData, aes(x = long, y = lat, group = group,
+                                    fill = POP_DENS)) +
+  coord_map() +
+  scale_fill_distiller(palette = "Greens",
+                       breaks = pretty_breaks(n = 8)) +
+  guides(fill = guide_legend(reverse = TRUE))
+
+myplot
+```
+### Exercises
+
+Try Making the following maps based on the previous code.
+
+- Save the above map to a large image or PDF file, e.g., 7 x 7.
+- Create a similar map using a different census variable in plotData 
+- Add the cafe data frame (dat) to the above plot.
+- Add UC Boundary data to the above map 
+
+<br>
+
+### References:
+#### https://cran.r-project.org/doc/contrib/intro-spatial-rl.pdf
+##### First Created: OCT 25 2015
+
+<br>
+
+### UC spatial data used in this demo available at
+#### http://ced.berkeley.edu/faculty/ratt/downloads/CCanyon/lab4Proj_files.zip 
+#### Disclaimer: I do not own the UC spatial data. Anyone interested in the data
+#### for other purposes should contact the owner directly.
+
+<br>
+
+### Reference books: 
+
+- Applied Spatial Data Analysis with R**, 2nd edition,
+by Roger S. Bivand, Edzer Pebesma, Virgilio Gómez-Rubio
+
+- An Introduction to R for Spatial Analysis and Mapping, 2015,
+by Chris Brunsdon and Lex Comber
