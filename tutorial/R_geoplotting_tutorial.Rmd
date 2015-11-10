@@ -43,7 +43,6 @@ output: html_document
 - This is a tutorial with a limited scope, not a comprehensive reference.
 - This tutorial only addresses the use of vector data (points, lines, and polygons) and not raster (grid) data.
 
-
 ## Getting Started
 
 ### Instructor notes
@@ -52,6 +51,18 @@ output: html_document
 - The code is a bit long and complex and is meant to serve as a reference rather than to be memorized. Thus, make this document available for students to copy from or cut and paste.
 - There are several opportunities for students to extend or change the code for practice. More exercises can be added or the students can be encouraged to follow the related tutorials.
 - Leave time for students to enter and run the code. Take a break every 20 minutes to get everyone caught up.
+
+### Preparation
+
+- Open RStudio or similar program to get started with this tutorial.
+- Download the data that the online GitHub repository for this tutorial: 
+  - Go to: https://github.com/pattyf/RGeoPlotting
+  - Click on the **Download zipfile** link to download all the tutorial files
+  - Unzip the tutorial zipfile - the data will be in the **data** directory
+- Open the tutorial HTML file to follow along.
+- Make a note of the directory, or folder, on your computer to which this data have been downloaded.
+
+## R Code
 
 ### Clean slate 
 
