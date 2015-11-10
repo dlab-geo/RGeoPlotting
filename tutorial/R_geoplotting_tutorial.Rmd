@@ -20,7 +20,10 @@ output: html_document
 - http://www.kevjohnson.org/making-maps-in-r/
 - http://blog.dominodatalab.com/geographic-visualization-with-rs-ggmaps/
 - http://rforpublichealth.blogspot.com/2015/10/mapping-with-ggplot-create-nice.html
-- http://eriqande.github.io/rep-res-web/lectures/making-maps-with-R.html
+- http://eriqande.github.io/rep-res-web/lectures/making-maps-with-R.html (working with ggplot)
+- https://github.com/Robinlovelace/Creating-maps-in-R (plotting spatial objects)
+- https://cran.r-project.org/web/packages/tmap/vignettes/tmap-nutshell.html (Tmap package)
+- https://journal.r-project.org/archive/2013-1/kahle-wickham.pdf (ggmap artical by creators David Kahle & Hadley Wickham)
 
 ### Goals
 - Provide example code & tips for creating maps in R using ggplot2 & ggmaps
@@ -61,6 +64,7 @@ output: html_document
   - Unzip the tutorial zipfile - the data will be in the **data** directory
 - Open the tutorial HTML file to follow along.
 - Make a note of the directory, or folder, on your computer to which this data have been downloaded.
+- Start your R program.
 
 ## R Code
 
@@ -73,7 +77,7 @@ rm(list = ls())
 ```
 
 <br>
-Set your working directory (or folder). This is where R will write ouput files and look for input.
+Set your working directory (or folder) to the directory on your computer that contains the tutorial data. This is where R will write ouput files and look for input.
 
 ```
 setwd("~/Documents/Dlab/dlab_workshops/geoplotting/DlabSpatialPlot") # or local folder
@@ -185,8 +189,8 @@ str(world) # take a look at the data types
 
 ### Structure of a ggplot data frame for geographic data 
 
-- **long** is longitude in decimal degrees as a numeric data type. Values range from +-180 degrees east or west of prime meridian (running through Greenwich, England - just outside of London).
-- **lat** is latitude. Latitude values range from +-90 degrees north or south of the equator.
+- **long** is X cooridnate value, typically longitude in decimal degrees as a numeric data type. Longitude values range from +-180 degrees east or west of prime meridian (running through Greenwich, England - just outside of London).
+- **lat** is the Y coordinate value, typically latitude. Latitude values range from +-90 degrees north or south of the equator.
 - **group** is a set of points. One lat/long pair is a point, points with the same group can be connected as a path/line or polygon. For example each island in the United Kingdom is a group.
 - **order** tells us the order with which to connect the points (think connect-the-dots).
 - **region** and subregion identify named features. All island groups within the United Kingdom have the region value "UK" and "Scotland" is one subregion.
@@ -235,7 +239,8 @@ Does that look better?
 ### Map Projectons & Coord Refeference Systems
 If you are going to be working with geographic data, you *need* to learn about map projections and coordinate reference systems. In depth treatment of those topics is beyond the scope of this tutorial. Here are some useful references:
 
- - Bolstad, P.  ch 3 available online.
+- https://en.wikipedia.org/wiki/Map_projection
+- https://en.wikipedia.org/wiki/Geographic_coordinate_system
 - ESRI, 2004. Understanding Map Projections, pp 1-21. (available via web search or on class bCourses site under files). 
 
 That said, here are a few important notes word about map projectons & coordinate refeference Systems (CRS):
@@ -243,7 +248,7 @@ That said, here are a few important notes word about map projectons & coordinate
 - **Geographic CRS** - coordinates specify geographic locations on a 3D sphere and look weird when displayed on a 2D planar surface like a map or computer screen.
 - **Map Projection** - a CRS that employs a mathematical transformation to project geographic coordinates onto a 2D surface.
 - All projections introduce distortion in shape, area, distance and,or direction. Map projections are specified to minimize one or more of these sourses of distortion for one region.
-- You should (almost) never do spatial analysis using geographic coordinate data - always use projected data! Again, this topic is beyond our scope but is important to keep in mind.
+- You should (almost) never do spatial analysis using data in a geographic CRS - always use projected data! Again, this topic is beyond our scope but is important to keep in mind.
 
 Thus far, we have used the *coord_map()* function to call the **mapproj** package from within ggplot. This package provides a simplified way of using map projections and coordinate systems. The *rgdal* package, which uses the *proj4* library, includes a much more sophisticated set of tools for handling CRSs.
 
@@ -471,8 +476,8 @@ ggplot(cal, aes(x=long, y=lat)) +
   labs(title="this is where it is at")
 ```
 
-### GGMAP Package
-*ggmap* extends ggplot2 with functionality for incorporating popular online basemaps like Google Maps data and OpenStreetMaps data. It also has a function for geocoding. See *?ggmap* for details on this fantastic package. We will explore some of its functionality.
+## GGMAP Package
+*ggmap* extends ggplot2 with functionality for incorporating popular online basemaps like Google Maps data and OpenStreetMaps data. It also has a function for geocoding. See *?ggmap* for details on this fantastic package. We will explore some of its functionality. A great article by the authors of ggmap, David Kahle and Hadley Wickham, that also serves as a tutorial, can be found here: https://journal.r-project.org/archive/2013-1/kahle-wickham.pdf.
 
 ## Geocoding
 Geocoding is the process of determining the geographic coordinates for place names, zip codes, and street addresses. The details beyond scope of course (see Dec D-Lab workshop). A function for accessing the Google Maps geocoding service is provided with *ggmap*.
@@ -828,7 +833,8 @@ dev.off()
 
 ### Map the Campus
 
-It's best practice to map projected spatial data (not geographic coordinates).
+It's best practice to map and analyze spatial data that are in a projected not geographic coordinate reference system.
+
 ```{r, eval=FALSE}
 
 # look into the data
@@ -871,7 +877,7 @@ plot(uc_buildings, add=T)
 
 ### Map Census Data on top of Google Maps
 #### After: http://www.kevjohnson.org/making-maps-in-r-part-2/
-Let's bring this tutorial full circle by plotting our spatial data objects on top of Google Maps using ggplot and ggmap.  In order to overlay our data on ggmap() basemaps we must use data in geographic coordinates.
+Let's bring this tutorial full circle by plotting our spatial data objects on top of Google Maps using ggplot and ggmap.  In order to overlay our data on ggmap() basemaps we must use data with a geographic coordinate reference system (i.e., geographic coordinates). Additionally, ggplot and ggmap require geographic data to be in a data.frame rather than in a spatial object. The gglot **fortify()** function can be used to transform spatial objects to data.frames. However, the resulting data.frame does not contain the attribute data - these need to be rejoined from the spatial data @data slot to the ggplot data.frame. This process is demonstrated in the code below.
 
 First, create a data frame that ggmap/ggplot can map
 ```{r, eval=FALSE}
@@ -883,8 +889,7 @@ censusT$Y <- coordinates(censusT)[,2]
 
 # Use fortify() to make the census data an object that ggplot can map
 plotData <- fortify(censusT, data=censusT@data, region="geoid")
-
-head(plotData)
+head(plotData) # take a look at the result of the fortify command
 
 #now map it
 map <- get_map("Berkeley", zoom=13)  
@@ -899,7 +904,7 @@ ggmap(map) +
 ```{r, eval=FALSE}
 
 plotData <- merge(plotData,censusT@data, by.x="id", by.y="geoid")
-head(plotData)
+head(plotData) # now you can see the attribute data re-joined to the geographic data
 
 #map it - color regions by census variable
 ggmap(map) +
