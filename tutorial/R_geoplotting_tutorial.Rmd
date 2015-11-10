@@ -5,7 +5,11 @@ date: "November 7, 2015"
 output: html_document
 ---
 
+# Creating Maps in R, an Overview
+
 ## Introduction
+
+This tutorial was prepared for a D-Lab Workshop on Creating Maps in R, November 13, 2015. It draws on our experience as well as the many helpful related tutorials available online, referenced at the bottom of this document.
 
 ### About
 - Prepared for the D-lab workshop Creating Maps in R
@@ -14,18 +18,15 @@ output: html_document
 - contact: schoi [at] berkeley.edu with suggestions
 
 
-
 ### Learning Goals
 
-- Provide example code & tips for creating maps in R using ggplot2 & ggmaps.
-- Explore basic mapping techniques the sample data provided by the maps package.
-- Take an introductory look at methods for working with spatial data objects and mapping them with R's base plotting system.
+- Provide example code & tips for creating maps in R using the ggplot2 & ggmaps packages.
 - Explore basic map types including dot maps, proportional symbol maps, and choropleth maps.
+- Introduce methods for working with spatial data objects and mapping them with R's base plotting system.
 
 ### Use Cases
 
 The content of this tutorial provides guidance for:
-
 - creating a reference map to your document or presentation,
 - adding geographic data to a basemap like Google Maps data,
 - creating maps using your own geographic data.
@@ -33,27 +34,30 @@ The content of this tutorial provides guidance for:
 ### Prerequisites
 
 - Basic knowledge of R assumed.
+- Access to the R statistical software environment (available from http://cran.r-project.org/).
+- Some basic knowledge of geographic data is recommended.
 
 ### Limitations
 
 - This is a tutorial with a limited scope, not a comprehensive reference.
 - This tutorial only addresses the use of vector data (points, lines, and polygons) and not raster (grid) data.
+- Only a very cursory introduction to spatial data objects is provided.
 
 ## Getting Started
 
 ### Instructor notes
 
-- This tutorial should take two hours with instructor guidance.
-- The code is a bit long and complex and is meant to serve as a reference rather than to be memorized. Thus, make this document available for students to copy from or cut and paste.
-- There are several opportunities for students to extend or change the code for practice. More exercises can be added or the students can be encouraged to follow the related tutorials.
-- Leave time for students to enter and run the code. Take a break every 20 minutes to get everyone caught up.
+- This tutorial should take approximately two hours with instructor guidance.
+- The code is a bit long and complex and is meant to serve as a reference. Thus, make this document available for students to copy from or cut and paste.
+- There are several opportunities for students to extend or change the code for practice. Students should be encouraged to follow the related tutorials.
+- Leave time for students to enter and run the code, e.g., take a break every 20 minutes to get everyone caught up.
 
 ### Preparation
 
-- Open RStudio or similar program to get started with this tutorial.
-- Download the data that the online GitHub repository for this tutorial: 
+- Open RStudio or similar R programming environment to get started with this tutorial.
+- Download the tutorial data that the online GitHub repository for this tutorial: 
   - Go to: https://github.com/pattyf/RGeoPlotting
-  - Click on the **Download zipfile** link to download all the tutorial files
+  - Click on the **Download zipfile** button (bottom-right) to download all the tutorial files
   - Unzip the tutorial zipfile - the data will be in the **data** directory
 - Open the tutorial HTML file to follow along.
 - Make a note of the directory, or folder, on your computer to which this data have been downloaded.
@@ -77,11 +81,11 @@ setwd("~/Documents/Dlab/dlab_workshops/geoplotting/DlabSpatialPlot") # or local 
 #setwd("~/Dropbox/Dlab/SpatialPlot")      # Could also be a dropbox folder (smart!)
 ```
 
-### Packages
+### Load Required Packages
 
 Below is some useful code that will:
 
-- identify the packages, or libraries, you will use,
+- list the R packages, or libraries, you will use,
 - check to see if they are installed,
 - install them if they are not already installed, and 
 - load them into your R environment so they are available to use.
@@ -112,7 +116,8 @@ The R packages used in this tutorial provide the following functionality:
 
 <br>
 
-### Topic 1: Creating maps with built-in map data
+## Section 1: Creating basic maps with ggplot
+
 Lots of R packages install demo data or provide functions for accessing remote data. We will start by creating some maps with built-in data.
 
 ### The maps package
@@ -125,7 +130,6 @@ You can use the command **data()** to see all data available from all of the ins
 data(package="maps") # See what data are available in maps package
 ```
 
-
 Once we load the package, we can load a data set and explore it.
 ```{r, eval=FALSE}
 world <- map_data("world")  # Load the world data into the object called world
@@ -135,6 +139,7 @@ world <- map_data("world")  # Load the world data into the object called world
 
 
 ### ggplot2
+
 Created by Hadley Wickham, **ggplot2** is perhaps the most widely used R package for creating plots, charts & maps. People who use ggplot are familiar with its syntax. However, newcomers to the package may find it non-intuitive. 
 
 There are many online tutorials and cheat-sheets for using ggplot. Some starting points:
@@ -148,22 +153,24 @@ There are many online tutorials and cheat-sheets for using ggplot. Some starting
 ### ggplot2 - jump start
 
 Use the ggplot2 package to create a map of the world data.
+
 ```{r, eval=FALSE}
 #library(ggplot2) # load the library if not already loaded
 ggplot(world, aes(x=long, y=lat)) +   
   geom_path(aes(group=group))
 
 # or
+
 ggplot() + geom_path(data=world, aes(x=long, y=lat, group=group))  
 ```
 
 #### Important notes:
 
-- The plus sign should always be on the right, else may cause errors!
+- The plus sign that chains the command syntax should always be on the right, else may cause errors!
 - The second syntax structure is clearer when layering multiple geom_ types.
 - The **aes()** or aesthetic function maps the data to specific plot elements. 
 
-See the ggplot2 documentation to dive into the details.
+See the **ggplot2** documentation to dive into the details.
 
 
 
@@ -179,6 +186,9 @@ str(world) # take a look at the data types
 - What do they mean - group, order? 
 - Why do they matter?
 
+### Geographic Data in R 
+
+In brief, geographic data are data that specify locations on or near the surface of the earth and may also include attributes that describe that location. Digital geographic data are also called geospatial or spatial data. Geographic data in R are can be stored in one of several classes of data objects. The **ggplot** package requires geographic data to be in a data frame, while other packages requre spatial data objects. A spatial data object in R (or in other software) specifies locations using spatial data types (points, lines, polygons, grids), provides support for coordinate reference system information to locate geographic data on the surface of the earth, and has spatial functions for operating on these data, for example to calculate spatial metrics like area and distance or spatial relations like intersects, contains, touches, etc. While spatial data objects facilitate more powerful spatial analyses both types of geographic data objects can be used to create beautiful maps in R. Moreover, we can transform geographic data from one format to the other in R.
 
 ### Structure of a ggplot data frame for geographic data 
 
@@ -188,14 +198,9 @@ str(world) # take a look at the data types
 - **order** tells us the order with which to connect the points (think connect-the-dots).
 - **region** and subregion identify named features. All island groups within the United Kingdom have the region value "UK" and "Scotland" is one subregion.
 
-
-### Spatial Data in R 
-
-Is the R data object **world** an example of geospatial data? In brief, geospatial data, or more simply spatial data, are data that specify locations on the surface of the earth and may also include attributes that describe that location. Since the **world** data specify locations with geographic coordinates - longitude (long) and latitude (lat) - then it is geographic data. But it is not a spatial data object. A spatial data object in R (or in other software) specifies locations using spatial data types (points, lines, polygons, grids) and has spatial functions for operating on those spatial data types. In contrast,the world data object stores coordinate values for longitude and latitude as numbers, similar to weight and height. Geographic data that are not spatial data objects rely on libraries, like ggplot2, to construct geographic features with the coordinate information. This is a little more work and a bit more limited. But it is in some ways a more natural progression for people who have not worked with spatial data types. We will look at spatial data objects in R a bit later on.
-
 ### Mapping regions
 
-- A country may have multiple polygons, defined by groups of points:
+A country may include multiple regions. The data for these regions are stored as polygons, defined by groups of ordered points.
 - Which country do you think should have more data points? why?
 ```{r, eval=FALSE}
 length(which(world$region=="India"))               
@@ -229,12 +234,12 @@ ggplot() +
 Does that look better?
 
 
-### Map Projectons & Coord Refeference Systems
+### Map Projections & Coordinate Refeference Systems
 If you are going to be working with geographic data, you *need* to learn about map projections and coordinate reference systems. In depth treatment of those topics is beyond the scope of this tutorial. Here are some useful references:
 
 - https://en.wikipedia.org/wiki/Map_projection
 - https://en.wikipedia.org/wiki/Geographic_coordinate_system
-- ESRI, 2004. Understanding Map Projections, pp 1-21. (available via web search or on class bCourses site under files). 
+- ESRI, 2004. Understanding Map Projections, pp 1-21. (available via web search). 
 
 That said, here are a few important notes word about map projectons & coordinate refeference Systems (CRS):
 
@@ -243,7 +248,7 @@ That said, here are a few important notes word about map projectons & coordinate
 - All projections introduce distortion in shape, area, distance and,or direction. Map projections are specified to minimize one or more of these sourses of distortion for one region.
 - You should (almost) never do spatial analysis using data in a geographic CRS - always use projected data! Again, this topic is beyond our scope but is important to keep in mind.
 
-Thus far, we have used the *coord_map()* function to call the **mapproj** package from within ggplot. This package provides a simplified way of using map projections and coordinate systems. The *rgdal* package, which uses the *proj4* library, includes a much more sophisticated set of tools for handling CRSs.
+Thus far, we have used the *coord_map()* function to call the **mapproj** package from within ggplot. This package provides a simplified way of using map projections and coordinate systems. The *rgdal* package, which uses the *proj4* library, includes a much more sophisticated set of tools for handling CRSs. 
 
 ### Now map Canada
 Edit the code we used above to create a map of Canada or another country of your choice.
@@ -279,12 +284,6 @@ Where is the distortion in that last plot?
 na_plot + coord_map("mercator")
 ```
 Is there still distortion? Is it the same as before?
-
-### Discussion
-
-- The data mapped with geographic coordinates creates distortion dramatically in the east-west direction resulting in a stretched out looking North America. This stretched look is clue that geographic coordinates are being used to create a map.
-- The data mapped with the mercator map projection looks better for USA but grossly exaggerates areas in all directions as you get closer to the poles, in this case the north pole.
-- Some software recognizes geographic coordinates and will apply a map projection transformation to improve the display of the data.
 
 
 ### Points, Lines, & Polygons
@@ -353,7 +352,8 @@ display.brewer.all(type="div")
 ### Exercise - color symbology
 Change the fill palette and the outline color for the previous map. Experiment with several fo the brewer palettes.
 
-### Topic: Creating choropleth maps
+## Section 2: Creating choropleth maps
+
 Choropleth maps symbolize areas by values. To create a choropleth map you need to link the attribute data to the spatial data (polygons).  We will do this with in the following section by loading data for US states from the maps package and then linking the data frame of state attributes to the state polygons based on state id or state name.
 
 The maps package has a data set called **state**. Let's load it and map it.
@@ -391,7 +391,7 @@ ggplot(states_dat, aes(x=long, y=lat)) +
 
 ### Order matters!
 You need to rearrange the data by group and order. REMEMBER WHY?
-We can use the **arrange** function in the **plyr** package to do this.
+We can use the **arrange** function in the **dplyr** or **plyr** package to do this.
 ```{r, eval=FALSE}
 states_dat <- arrange(states_dat, group, order)
 ggplot(states_dat, aes(x=long, y=lat)) +
@@ -426,7 +426,7 @@ ggplot(states_dat, aes(x=long, y=lat)) +
   geom_polygon(aes(group=group, fill=Population),colour="NA") +
   scale_fill_distiller() +
   coord_map("mercator") +
-  labs(title = "Population by State", fill = "") +
+  labs(title = "Population by State") +
   theme_nothing(legend=TRUE)
 ```
 **Try It** - Take a look at the **?scale_fill_distiller** help page. Try changing some of the options, eg add *palette="Reds" inside scale_fill_distiller().
@@ -459,7 +459,7 @@ Look back to the previous code where we subset North American Countries using co
 - Add a title
 - use a different ggplot theme (eg theme_bw or theme_minimal). See **?ggtheme** for help.
 
-### Give up?
+### Here's one approach
 ```{r, eval=FALSE}
 cal <- subset(states, (long < -114 & long > -124) & (lat > 32 & lat < 42.5))
 ggplot(cal, aes(x=long, y=lat)) +
@@ -469,10 +469,10 @@ ggplot(cal, aes(x=long, y=lat)) +
   labs(title="this is where it is at")
 ```
 
-## GGMAP Package
-*ggmap* extends ggplot2 with functionality for incorporating popular online basemaps like Google Maps data and OpenStreetMaps data. It also has a function for geocoding. See *?ggmap* for details on this fantastic package. We will explore some of its functionality. A great article by the authors of ggmap, David Kahle and Hadley Wickham, that also serves as a tutorial, can be found here: https://journal.r-project.org/archive/2013-1/kahle-wickham.pdf.
+## Section 3. The GGMAP Package
+*ggmap* extends ggplot2 with functionality for incorporating popular online basemaps like Google Maps data and OpenStreetMaps data. It also has a function for geocoding. See *?ggmap* for details on these and other functions. A great article by the authors of ggmap, David Kahle and Hadley Wickham, that also serves as a tutorial, can be found here: https://journal.r-project.org/archive/2013-1/kahle-wickham.pdf.
 
-## Geocoding
+### Geocoding
 Geocoding is the process of determining the geographic coordinates for place names, zip codes, and street addresses. The details beyond scope of course (see Dec D-Lab workshop). A function for accessing the Google Maps geocoding service is provided with *ggmap*.
 
 Say it & Save it - you only get 2500 free per day with Google Geocoding Service
@@ -597,7 +597,7 @@ ggmap(bayarea_map) +
 
 <br>
 
-### Plotting Your Data
+## Section 4. Plotting Your Data
 Thus far we have created maps using data from the R maps and ggmaps packages. Now let's try creating maps from data that you have on your computer - downloaded for this tutorial.
 
 - Let's read in data from a CSV file: cafes where I go often. 
@@ -638,7 +638,7 @@ g
 
 ```
 
-### Mapping your own spatial data
+## Section 5. Mapping Spatial Data Objects with the Base Plotting System
 
 Thus far we have mapped data where the geographic locations are stored in a data frame as numbers in columns labeled *lat* and *lon*. We will now work with explicit spatial data which store geographic locations aspoints, lines and polygons objects. FYI here is a really nice cheat sheet for working with spatial data in R:
 
@@ -723,7 +723,7 @@ points(cafe_spdf[which(cafe_spdf$name=="strada"),], col="red", pch=20)
 ### Explore spatial data with rgdal package
 *rgdal* is an R port of the powerful and widely used GDAL/OGR libraries. See gdal.org for details on its functionality.
 
-Let's take a look at some data wec have in our working directory and load then load it into R.
+Let's take a look at some data we have in our working directory and load then load it into R.
 
 ```{r, eval=FALSE}
 # crs and projection
@@ -758,6 +758,7 @@ getClass("SpatialPolygons")
 ### Map Overlays
 
 Let's make a map of all of our data. Note the new commands.
+
 ```{r, eval=FALSE}
 plot(uc_boundary, border="blue")
 plot(census, add=T)
@@ -822,7 +823,6 @@ lines(dat$long, dat$lat, col="red", lwd=2)
 dev.off()
 
 ```
-
 
 ### Map the Campus
 
