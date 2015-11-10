@@ -13,29 +13,22 @@ output: html_document
 - See: dlab.berkeley.edu
 - contact: schoi [at] berkeley.edu with suggestions
 
-### References
-- http://rpubs.com/ajlyons/rgeospatialdata
 
-### Recommended Related Tutorials
-- http://www.kevjohnson.org/making-maps-in-r/
-- http://blog.dominodatalab.com/geographic-visualization-with-rs-ggmaps/
-- http://rforpublichealth.blogspot.com/2015/10/mapping-with-ggplot-create-nice.html
-- http://eriqande.github.io/rep-res-web/lectures/making-maps-with-R.html (working with ggplot)
-- https://github.com/Robinlovelace/Creating-maps-in-R (plotting spatial objects)
-- https://cran.r-project.org/web/packages/tmap/vignettes/tmap-nutshell.html (Tmap package)
-- https://journal.r-project.org/archive/2013-1/kahle-wickham.pdf (ggmap artical by creators David Kahle & Hadley Wickham)
 
-### Goals
-- Provide example code & tips for creating maps in R using ggplot2 & ggmaps
-- Explore some of the sample data provided by the map package
-- Take an introductory look at methods for working with spatial data with the sp, rgdal, and x packages and mapping them with R's base() plotting functionality.
-- Explore some basic map types including dot maps, proportional symbol maps, and choropleth maps.
+### Learning Goals
+
+- Provide example code & tips for creating maps in R using ggplot2 & ggmaps.
+- Explore basic mapping techniques the sample data provided by the maps package.
+- Take an introductory look at methods for working with spatial data objects and mapping them with R's base plotting system.
+- Explore basic map types including dot maps, proportional symbol maps, and choropleth maps.
 
 ### Use Cases
 
-- Adding reference map to your document or presentation for reference.
-- Adding point data to a basemap
-- Creating maps using your own data
+The content of this tutorial provides guidance for:
+
+- creating a reference map to your document or presentation,
+- adding geographic data to a basemap like Google Maps data,
+- creating maps using your own geographic data.
 
 ### Prerequisites
 
@@ -934,23 +927,32 @@ Try Making the following maps based on the previous code.
 
 <br>
 
-### References:
-#### https://cran.r-project.org/doc/contrib/intro-spatial-rl.pdf
-##### First Created: OCT 25 2015
+## References
 
-<br>
+### Recommended Tutorials
+- http://www.kevjohnson.org/making-maps-in-r/
+- http://blog.dominodatalab.com/geographic-visualization-with-rs-ggmaps/
+- http://rforpublichealth.blogspot.com/2015/10/mapping-with-ggplot-create-nice.html
+- http://eriqande.github.io/rep-res-web/lectures/making-maps-with-R.html (working with ggplot)
+- https://github.com/Robinlovelace/Creating-maps-in-R (plotting spatial objects)
+- https://cran.r-project.org/web/packages/tmap/vignettes/tmap-nutshell.html (Tmap package)
+- https://journal.r-project.org/archive/2013-1/kahle-wickham.pdf (ggmap artical by creators David Kahle & Hadley Wickham)
+- http://rpubs.com/ajlyons/rgeospatialdata
 
-### UC spatial data used in this demo available at
-#### http://ced.berkeley.edu/faculty/ratt/downloads/CCanyon/lab4Proj_files.zip 
-#### Disclaimer: I do not own the UC spatial data. Anyone interested in the data
-#### for other purposes should contact the owner directly.
-
-<br>
-
-### Reference books: 
+### Books: 
 
 - Applied Spatial Data Analysis with R**, 2nd edition,
 by Roger S. Bivand, Edzer Pebesma, Virgilio Gómez-Rubio
 
 - An Introduction to R for Spatial Analysis and Mapping, 2015,
 by Chris Brunsdon and Lex Comber
+
+<br>
+
+##### First Created: OCT 25 2015
+
+### UC spatial data used in this demo available at
+#### http://ced.berkeley.edu/faculty/ratt/downloads/CCanyon/lab4Proj_files.zip 
+#### Disclaimer: I do not own the UC spatial data. Anyone interested in the data
+#### for other purposes should contact the owner directly.
+
