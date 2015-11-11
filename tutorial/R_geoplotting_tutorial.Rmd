@@ -3,7 +3,6 @@ title: "Creating Maps in R"
 author: "Patty Frontiera & Shinhye Choi"
 date: "November 7, 2015"
 output: html_document
----
 
 # Creating Maps in R, an Overview
 
@@ -767,8 +766,9 @@ points(cafe_spdf, col="green")
 ```
 
 #### Why can't we see our cafe points?
+Why might the code below help?
 ```{r, eval=FALSE}
-proj4string(cafe_spdf) == proj4string(uc_buildings)
+proj4string(cafe_spdf) == proj4string(uc_buildings)  ## THIS SHOULD BE SP TRANSFORM! - check
 ```
 
 ### Transforming CRS
@@ -778,8 +778,10 @@ coordinate systems. You can use the spTransform() function to transform, or repr
 ```{r, eval=FALSE}
 uc_boundaryT  <- spTransform(uc_boundary, CRS("+proj=longlat +ellaps=WGS84"))
 censusT <- spTransform(census, CRS("+proj=longlat +ellaps=WGS84"))
-uc_buildingsT <- spTransform(uc_buildings,CRS(proj4string(censusT)))
+uc_buildingsT <- spTransform(uc_buildings,CRS(proj4string(censusT)))  
 ```
+One of those three lines above is not like the other - but it still works and is quite helpful.
+
 
 - What's different about that last line?
 - Re-create the map using the code above - do you see the cafes now?
