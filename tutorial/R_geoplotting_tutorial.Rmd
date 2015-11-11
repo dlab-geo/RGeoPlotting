@@ -73,8 +73,7 @@ Make sure what you do and what you see in R is not a result of commands you prev
 rm(list = ls())
 ```
 
-<br>
-Set your working directory (or folder) to the directory on your computer that contains the tutorial data. This is where R will write ouput files and look for input.
+Set your working directory (or folder) to the directory on your computer that contains the tutorial data. This is where R will write output files and look for input.
 
 ```
 setwd("~/Documents/Dlab/dlab_workshops/geoplotting/DlabSpatialPlot") # or local folder
@@ -169,8 +168,9 @@ ggplot() + geom_path(data=world, aes(x=long, y=lat, group=group))
 - The plus sign that chains the command syntax should always be on the right, else may cause errors!
 - The second syntax structure is clearer when layering multiple geom_ types.
 - The **aes()** or aesthetic function maps the data to specific plot elements. 
+- You may have used the *qplot()* function (short for quick plot) in ggplot to create plots with non-geographic data. However, qplot() does not have the full functionality of ggplot() and in particular cannot layer different data objects on the same plot - an activity that is very common in map making (i.e., map overlay). Thus, qplot will not be covered in this tutorial.
 
-See the **ggplot2** documentation to dive into the details.
+See the **ggplot2** documentation to dive into the details of the ggplot() syntax. 
 
 
 
@@ -946,6 +946,9 @@ by Roger S. Bivand, Edzer Pebesma, Virgilio Gómez-Rubio
 
 - An Introduction to R for Spatial Analysis and Mapping, 2015,
 by Chris Brunsdon and Lex Comber
+
+- ggplot2: Elegant Graphics for Data Analysis (Use R!) 1st ed. 2009. Corr. 3rd printing 2010 Edition
+by Hadley Wickham (See: http://ggplot2.org/book/).
 
 <br>
 
