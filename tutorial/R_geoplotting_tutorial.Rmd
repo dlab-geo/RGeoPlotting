@@ -617,8 +617,11 @@ map <- get_map("Berkeley", zoom=14)
 
 # Let's create a cateogry dot map (or pin map)
 ggmap(map) +
-  geom_point(aes(x = long, y = lat, size = 4, colour = I(name)), 
+  geom_point(aes(x = long, y = lat, size = 4, colour = I(name)),   
              data = dat, alpha = .9)                # geom_points!
+
+# Note: In the above code the I() sets the a color for each unique value of name.
+# If the column values are numbers not strings you need to use factor() instead.
 
 #Let's create a proportional symbol map
 #let's scale the symbol size by the price but make it a bit bigger by adding 2
