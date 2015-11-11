@@ -166,7 +166,7 @@ ggplot() + geom_path(data=world, aes(x=long, y=lat, group=group))
 #### Important notes:
 
 - The plus sign that chains the command syntax should always be on the right, else may cause errors!
-- The second syntax structure is clearer when layering multiple geom_ types.
+- The second syntax structure is clearer when layering multiple **geom_** types.
 - The **aes()** or aesthetic function maps the data to specific plot elements. 
 - You may have used the *qplot()* function (short for quick plot) in ggplot to create plots with non-geographic data. However, qplot() does not have the full functionality of ggplot() and in particular cannot layer different data objects on the same plot - an activity that is very common in map making (i.e., map overlay). Thus, qplot will not be covered in this tutorial.
 
@@ -188,15 +188,15 @@ str(world) # take a look at the data types
 
 ### Geographic Data in R 
 
-In brief, geographic data are data that specify locations on or near the surface of the earth and may also include attributes that describe that location. Digital geographic data are also called geospatial or spatial data. Geographic data in R are can be stored in one of several classes of data objects. The **ggplot** package requires geographic data to be in a data frame, while other packages requre spatial data objects. A spatial data object in R (or in other software) specifies locations using spatial data types (points, lines, polygons, grids), provides support for coordinate reference system information to locate geographic data on the surface of the earth, and has spatial functions for operating on these data, for example to calculate spatial metrics like area and distance or spatial relations like intersects, contains, touches, etc. While spatial data objects facilitate more powerful spatial analyses both types of geographic data objects can be used to create beautiful maps in R. Moreover, we can transform geographic data from one format to the other in R.
+In brief, geographic data are data that specify locations on or near the surface of the earth and may also include attributes that describe that location. Digital geographic data are also called geospatial or spatial data. Geographic data in R are can be stored in one of several classes of data objects. The **ggplot** package requires geographic data to be in a data frame, while other packages requre spatial data objects. A spatial data object in R (or in other software) specifies locations using spatial data types (points, lines, polygons, grids), provides support for coordinate reference system information to locate geographic data on the surface of the earth, and has spatial functions for operating on these data, for example to calculate spatial metrics like area and distance or spatial relations like intersects, contains, touches, etc. While spatial data objects facilitate more powerful spatial analyses, both types of geographic data objects can be used to create beautiful maps in R. Moreover, we can transform geographic data from one format to the other in R.
 
 ### Structure of a ggplot data frame for geographic data 
 
-- **long** is X cooridnate value, typically longitude in decimal degrees as a numeric data type. Longitude values range from +-180 degrees east or west of prime meridian (running through Greenwich, England - just outside of London).
+- **long** is the X cooridnate value, typically longitude in decimal degrees as a numeric data type. Longitude values range from +-180 degrees east or west of prime meridian (running through Greenwich, England - just outside of London).
 - **lat** is the Y coordinate value, typically latitude. Latitude values range from +-90 degrees north or south of the equator.
-- **group** is a set of points. One lat/long pair is a point, points with the same group can be connected as a path/line or polygon. For example each island in the United Kingdom is a group.
+- **group** identifies a set of points. One lat/long pair is a point, points with the same group can be connected as a path/line or polygon. For example each island in the United Kingdom is a group.
 - **order** tells us the order with which to connect the points (think connect-the-dots).
-- **region** and subregion identify named features. All island groups within the United Kingdom have the region value "UK" and "Scotland" is one subregion.
+- **region** and subregion identify named features. For example, in the world data frame all island groups within the United Kingdom have the region value "UK" and "Scotland" is one subregion.
 
 ### Mapping regions
 
