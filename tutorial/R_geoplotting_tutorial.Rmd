@@ -452,7 +452,7 @@ ggsave("popmap.png", width = 9, height = 9)
 ### Exercise - subset California
 Look back to the previous code where we subset North American Countries using coordinates values.
 
-- Subset CA between +32 and +42.5 degrees latitude and 114 and -124 longitude.
+- Subset CA between +32 and +42.5 degrees latitude and -114 and -124 longitude.
 - Plot CA with and without *+ coord_map("mercator")*. 
 - Add some custom color symbology using a qualitative palette and white outlines
 - Add a title
@@ -559,7 +559,7 @@ The most common types of point maps are:
 - **categorical dot maps** which color code the points by category
 - **proportional symbol maps** which scale the symbol size based on an attribute value.
 
-Let's fetch some data on US cities from the maps package and create some point maps.
+Let's fetch some data on US cities from the maps package and create some point maps. Now we will use the **ggmap()** function which allows one to layer geom features on top of the basemap.
 ```{r, eval=FALSE}
 data(us.cities)
 str(us.cities)
@@ -622,6 +622,7 @@ ggmap(map) +
 
 # Note: In the above code the I() sets the a color for each unique value of name.
 # If the column values are numbers not strings you need to use factor() instead.
+# This assumes the numbers are limted to around 10 unique values.
 
 #Let's create a proportional symbol map
 #let's scale the symbol size by the price but make it a bit bigger by adding 2
