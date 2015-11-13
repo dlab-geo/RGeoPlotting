@@ -223,7 +223,7 @@ ggplot(world[world$region=="India",], aes(x=long, y=lat)) +
 Compare that map to this one:
 ```{r, eval=FALSE}
 
-ggplot(world[which(world$region=="India"),], aes(x=long, y=lat)) +   
+ggplot(world[world$region=="India",], aes(x=long, y=lat)) +   
   geom_path(aes(group=group)) + coord_map("mercator") 
 
 ```
@@ -253,9 +253,9 @@ Edit the code we used above to create a map of Canada or another country of your
 
 You can assign a plot to a variable name (below **p2**) and then display the plot by entering the variable name in the R console. That way you can display or add to the plot without having to re-input all that code!
 ```{r, eval=FALSE}
-p2 <- ggplot(north_a, aes(x=long, y=lat)) +   
-          geom_path(aes(group=group)) + 
-          coord_map("mercator")
+
+p2 <- ggplot(world[world$region=="India",], aes(x=long, y=lat)) +   
+        geom_path(aes(group=group)) + coord_map("mercator") 
 p2
 ```
 
@@ -266,31 +266,34 @@ Let's subset the **world** data to extract North America locations only.
 north_a_countries <- map_data("world", region=c("USA", "Canada"))
 north_a <- subset(north_a_countries, long < -50 & lat > 20)
 ```
-What is the difference between **north_a_countries** and **north_a**?
+What is the difference between **north_a_countries** and **north_a**? Plot them to compare
 
 ### Plot North America using geographic coordinates
 ```{r, eval=FALSE}
+
+# Countries
+ggplot(north_a_countries, aes(x=long, y=lat)) +
+  geom_polygon(aes(group=group))
+  
+# Countries subset by coordinate values  
 ggplot(north_a, aes(x=long, y=lat)) +   
   geom_path(aes(group=group))
 
-ggplot() + geom_path(data=north_a, aes(x=long, y=lat, group=group))
 ```
+### Plot North America using the mercator map projections
 
-### Assign a plot to a variable name
+Is there still distortion?
+
 ```{r, eval=FALSE}
-na_plot <- ggplot() + geom_path(data=north_a, aes(x=long, y=lat, group=group))
+na_plot <- ggplot(north_a, aes(x=long, y=lat)) +   
+              geom_path(aes(group=group))
+              
+# Add a plot option to a plot variable!
+na_plot + coord_map("mercator")
+
+# and display it
 na_plot
 ```
-
-Be sure to click on the zoom button in RStudio to see a larger map image.
-Where is the distortion in that last plot?
-
-### Plot North America using the mercator map projections
-```{r, eval=FALSE}
-na_plot + coord_map("mercator")
-```
-Is there still distortion? Is it the same as before?
-
 
 ### Points, Lines, & Polygons
 
@@ -612,9 +615,9 @@ Thus far we have created maps using data from the R maps and ggmaps packages. No
 
 #### Load the data and take a look at it
 ```{r, eval=FALSE}
-dat <- read.csv("cafe.csv")
-head(dat)
-str(dat)
+cafe <- read.csv("cafe.csv")
+head(cafe)
+str(cafe)
 ```
 
 
@@ -625,7 +628,7 @@ map <- get_map("Berkeley", zoom=14)
 # Let's create a cateogry dot map (or pin map)
 ggmap(map) +
   geom_point(aes(x = long, y = lat, size = 4, colour = I(name)),   
-             data = dat, alpha = .9)                # geom_points!
+             data = cafe, alpha = .9)                # geom_points!
 
 # Note: In the above code the I() sets the a color for each unique value of name.
 # If the column values are numbers not strings you need to use factor() instead.
@@ -636,12 +639,12 @@ ggmap(map) +
 
 ggmap(map) +
   geom_point(aes(x = long, y = lat, size = price), colour = "red", 
-             data = dat, alpha = 1)                # geom_points!
+             data = cafe, alpha = 1)                # geom_points!
 
 #Add title - remember how?
 g <- ggmap(map) +
   geom_point(aes(x = long, y = lat, size = price), colour = "red", 
-             data = dat, alpha = 1)
+             data = cafe, alpha = 1)
  
 #g <- g + <add code for title>
 g
@@ -667,18 +670,18 @@ getClass("SpatialPoints")
 We can create a Spatial Points object from the cafe **dat** data frame. First, extract the coordinates (long, lat) from the data frame.
 
 ```{r, eval=FALSE}
-dat_coords <- cbind(dat$long, dat$lat)
-row.names(dat_coords) <- dat$name #keep the names of the cafes as the row.names
-str(dat_coords)
+cafe_coords <- cbind(cafe$long, cafe$lat)
+row.names(cafe_coords) <- cafe$name #keep the names of the cafes as the row.names
+str(cafe_coords)
 ```
 
 ### Create a SpatialPoints object
 Let's create a spatialpoints data object from the cafe data (dat)
 ```{r, eval=FALSE}
-dat_sp <- SpatialPoints(dat_coords)
+cafe_sp <- SpatialPoints(cafe_coords)
 
 # Define the CRS for the SpatialPoints object
-proj4string(dat_sp) <- CRS("+proj=longlat + ellps=WGS84")
+proj4string(cafe_sp) <- CRS("+proj=longlat + ellps=WGS84")
 
 # Note we could do those two steps in one line of code - as the documentation shows us
 #dat_sp <- SpatialPoints(dat_coords, proj4string=CRS("+proj=longlat + ellps=WGS84"))
@@ -717,8 +720,8 @@ A SpatialPointsDataFrame stores the data frame in the @data slot of the object. 
 
 ```{r, eval=FALSE}
 
-cafe_spdf <- SpatialPointsDataFrame(cbind(dat$long,dat$lat),data=dat,
-                                     proj4string=CRS("+proj=longlat + ellps=WGS84"))
+cafe_spdf <- SpatialPointsDataFrame(cbind(cafe$long,cafe$lat),data=cafe,
+                        proj4string=CRS("+proj=longlat + ellps=WGS84"))
 
 #examine it
 class(cafe_spdf)
@@ -779,7 +782,7 @@ points(cafe_spdf, col="green")
 #### Why can't we see our cafe points?
 Why might the code below help?
 ```{r, eval=FALSE}
-proj4string(cafe_spdf) == proj4string(uc_buildings)  ## THIS SHOULD BE SP TRANSFORM! - check
+proj4string(cafe_spdf) == proj4string(uc_buildings)  ## What does this tell us?
 ```
 
 ### Transforming CRS
@@ -794,8 +797,7 @@ uc_buildingsT <- spTransform(uc_buildings,CRS(proj4string(censusT)))
 One of those three lines above is not like the other - but it still works and is quite helpful.
 
 
-- What's different about that last line?
-- Re-create the map using the code above - do you see the cafes now?
+Now that we have data all in the same CRS, re-create the map - do you see the cafes now?
 
 ```{r, eval=FALSE}
 plot(uc_boundaryT, border="blue")
@@ -804,42 +806,7 @@ plot(uc_buildingsT, col="red", add=T)
 points(cafe_spdf, col="green", pch=20)
 ```
 
-#### More plots
-
-```{r, eval=FALSE}
-plot(uc_boundaryT)
-plot(censusT, add=T)
-points(-122.258016, 37.870151, col="blue", pch=16, cex=2)
-points(dat$long, dat$lat, col="red", pch=16, cex=2)
-
-# Save our map to a PDF File
-pdf(file = paste("types", Sys.Date(), ".pdf", sep = ""),
-    height = 6, width = 8)
-plot(dat$long, dat$lat, col="red", pch=16, cex=2, axes=F)
-dev.off()
-
-pdf(file = paste("types1", Sys.Date(), ".pdf", sep = ""),
-    height = 6, width = 8)
-plot(uc_boundaryT)
-plot(censusT, add=T)
-points(-122.258016, 37.870151, col="blue", pch=16, cex=2)
-points(dat$long, dat$lat, col="red", pch=16, cex=2)
-dev.off()
-
-pdf(file = paste("types2", Sys.Date(), ".pdf", sep = ""),
-    height = 6, width = 8)
-plot(uc_boundaryT)
-plot(censusT, add=T)
-points(-122.258016, 37.870151, col="blue", pch=16, cex=2)
-points(dat$long, dat$lat, col="red", pch=16, cex=2)
-lines(dat$long, dat$lat, col="red", lwd=2)
-dev.off()
-
-```
-
 ### Map the Campus
-
-It's best practice to map and analyze spatial data that are in a projected not geographic coordinate reference system.
 
 ```{r, eval=FALSE}
 
@@ -849,7 +816,7 @@ plot(uc_buildings[which(uc_buildings$NAME2=="Barrows Hall"),], add=TRUE, col="bl
 plot(uc_buildings[which(uc_buildings$NAME2=="Lawrence Hall of Science"),], add=TRUE, col="red")
 plot(uc_buildings[which(uc_buildings$NAME2=="Sproul Hall"),], add=TRUE, col="red")
 
-# plot all maps
+# plot all map data
 plot(uc_buildings)
 plot(uc_boundary, add=T, border="blue", lwd=2)
 plot(census, add=T, border="grey")
@@ -929,6 +896,48 @@ myplot <- ggmap(map) +
 
 myplot
 ```
+
+### **multiplot** Helper Function 
+This function will allow you to display two ggplot plots side by side.
+You call it like this: **multiplot(plot1,plot2)**
+```{r, eval=FALSE}
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  library(grid)
+  
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+  
+  numPlots = length(plots)
+  
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                     ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+  
+  if (numPlots==1) {
+    print(plots[[1]])
+    
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+    
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+      
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+```
+
 ### Exercises
 
 Try Making the following maps based on the previous code.
