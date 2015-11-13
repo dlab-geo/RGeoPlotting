@@ -849,6 +849,9 @@ myplot</code></pre>
 <h3><strong>multiplot</strong> Helper Function</h3>
 <p>This function will allow you to display two ggplot plots side by side. You call it like this: <strong>multiplot(plot1,plot2)</strong></p>
 <pre class="r"><code>multiplot &lt;- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  
+  # Source: http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_(ggplot2)/
+  
   library(grid)
   
   # Make a list from the ... arguments and plotlist
