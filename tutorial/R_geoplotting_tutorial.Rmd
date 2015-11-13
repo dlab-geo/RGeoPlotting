@@ -154,6 +154,7 @@ Use the ggplot2 package to create a map of the world data.
 
 ```{r, eval=FALSE}
 #library(ggplot2) # load the library if not already loaded
+
 ggplot(world, aes(x=long, y=lat)) +   
   geom_path(aes(group=group))
 
@@ -191,8 +192,10 @@ In brief, geographic data are data that specify locations on or near the surface
 
 ### Structure of a ggplot data frame for geographic data 
 
-- **long** is the X cooridnate value, typically longitude in decimal degrees as a numeric data type. Longitude values range from +-180 degrees east or west of prime meridian (running through Greenwich, England - just outside of London).
-- **lat** is the Y coordinate value, typically latitude. Latitude values range from +-90 degrees north or south of the equator.
+- **long** is longitude in decimal degrees as a numeric data type. Longitude values range from +-180 degrees east or west of prime meridian (running through Greenwich, England - just outside of London).
+  - You may also see projected map coordinates in the long column (confusing) or in a column labeled **X**.
+- **lat** is latitude. Latitude values range from +-90 degrees north or south of the equator.
+  - You may also see projected map coordinates in the lat column (confusing) or in a column labeled **Y**.
 - **group** identifies a set of points. One lat/long pair is a point, points with the same group can be connected as a path/line or polygon. For example each island in the United Kingdom is a group.
 - **order** tells us the order with which to connect the points (think connect-the-dots).
 - **region** and subregion identify named features. For example, in the world data frame all island groups within the United Kingdom have the region value "UK" and "Scotland" is one subregion.
@@ -210,25 +213,19 @@ length(which(world$region=="Canada"))
 
 Let's create a map of one region - India
 ```{r, eval=FALSE}
-ggplot(world[which(world$region=="India"),], aes(x=long, y=lat)) +   
-  geom_path(aes(group=group)) 
-
-#or
-
-ggplot() +
-  geom_path(data=world[which(world$region=="India"),], aes(x=long, y=lat, group=group))
+ 
+ggplot(world[world$region=="India",], aes(x=long, y=lat)) +   
+              geom_path(aes(group=group))    
 ```
 
-### What didn't look right? 
+#### What didn't look right? 
 
 Compare that map to this one:
 ```{r, eval=FALSE}
+
 ggplot(world[which(world$region=="India"),], aes(x=long, y=lat)) +   
   geom_path(aes(group=group)) + coord_map("mercator") 
 
-ggplot() +
-  geom_path(data=world[which(world$region=="India"),], aes(x=long, y=lat, group=group)) +
-   coord_map("mercator") 
 ```
 Does that look better?
 
@@ -251,6 +248,16 @@ Thus far, we have used the *coord_map()* function to call the **mapproj** packag
 
 ### Now map Canada
 Edit the code we used above to create a map of Canada or another country of your choice.
+
+### Assigning a plot to a variable
+
+You can assign a plot to a variable name (below **p2**) and then display the plot by entering the variable name in the R console. That way you can display or add to the plot without having to re-input all that code!
+```{r, eval=FALSE}
+p2 <- ggplot(north_a, aes(x=long, y=lat)) +   
+          geom_path(aes(group=group)) + 
+          coord_map("mercator")
+p2
+```
 
 ### Exploring North America
 
