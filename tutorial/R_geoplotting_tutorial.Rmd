@@ -75,8 +75,8 @@ rm(list = ls())
 Set your working directory (or folder) to the directory on your computer that contains the tutorial data. This is where R will write output files and look for input.
 
 ```
-setwd("~/Documents/Dlab/dlab_workshops/geoplotting/DlabSpatialPlot") # or local folder
-#setwd("~/Dropbox/Dlab/SpatialPlot")      # Could also be a dropbox folder (smart!)
+setwd("~/Documents/Dlab/SpatialPlot")   # or local folder
+#setwd("~/Dropbox/Dlab/SpatialPlot")    # Could also be a dropbox folder (smart!)
 ```
 
 ### Load Required Packages
