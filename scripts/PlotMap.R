@@ -212,8 +212,8 @@ ggplot(cal, aes(x=long, y=lat)) +
 
 # Geocoding
 library(ggmap)
-geocode("Berkelely, CA", source="google")
-berkeley_loc <- as.numeric(geocode("Berkelely, CA",source="google"))  
+geocode("Berkeley, CA", source="google")
+berkeley_loc <- as.numeric(geocode("Berkeley, CA",source="google"))  
                 # What's the difference?
 
 # Now, add the point for Berkeley to the map of CA. 
