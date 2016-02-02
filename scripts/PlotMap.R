@@ -36,8 +36,8 @@ head(world)
 
 # a country may have multiple polygons:
 # which country do you think should have more data points? why?
-length(which(world$region=="India"))               
-length(which(world$region=="Canada"))
+length(which(world$region == "India"))               
+length(which(world$region == "Canada"))
 
 # Plot one region: India
 p1 <- ggplot(world[world$region=="India",], aes(x=long, y=lat)) +   
@@ -135,7 +135,7 @@ state_att <- state.x77     # rm(state.x77)
 unique(states$region)
 unique(row.names(state_att))   # Alaska/DC not in both data sets, but it's okay. why?
 # tolower state names
-state_att <- as.data.frame(state_att[-which(row.names(state_att)=="Alaska"),])  # not necessary. why?
+state_att <- as.data.frame(state_att[row.names(state_att) != "Alaska",])  # not necessary. why?
 state_att$name <- tolower(row.names(state_att))
 
 # now merge the two data sets: spatial + attribute data
@@ -371,20 +371,20 @@ bbox(cafe_sp)
 proj4string(cafe_sp)
 
 # subset the data: I want to know the location of Strada..
-coordinates(cafe_sp)[which(row.names(cafe_sp)=="strada"),]
+coordinates(cafe_sp)[row.names(cafe_sp) == "strada", ]
 
 # Create Maps with R Base Plotting System
 # basic plot
 plot(cafe_sp)
-points(coordinates(cafe_sp)[which(row.names(cafe_sp)=="strada"),1],
-       coordinates(cafe_sp)[which(row.names(cafe_sp)=="strada"),2],col="red", pch=20)
+points(coordinates(cafe_sp)[row.names(cafe_sp) == "strada", 1],
+       coordinates(cafe_sp)[row.names(cafe_sp) == "strada", 2], col="red", pch=20)
 
 
 # Create a SpatialPointsDataFrame Object
 # A SpatialPointsDataFrame stores the data frame in the @data slot of the object. 
 # See ?SpatialPointsDataFrame for details on this class of object.
 
-cafe_spdf <- SpatialPointsDataFrame(cbind(cafe$long,cafe$lat),
+cafe_spdf <- SpatialPointsDataFrame(cbind(cafe$long, cafe$lat),
                                     data=cafe,
                                     proj4string=CRS("+proj=longlat + ellps=WGS84"))
 #examine it
@@ -393,7 +393,7 @@ str(cafe_spdf)
 
 # map it
 plot(cafe_spdf)
-points(cafe_spdf[which(cafe_spdf$name=="strada"),], col="red", pch=20)
+points(cafe_spdf[cafe_spdf$name == "strada", ], col="red", pch=20)
 
 # Explore Spatial data with rgdal package
 # crs and projection
@@ -438,9 +438,9 @@ points(cafe_spdf, col="orange", pch=20)
 # more maps!
 # look into the data
 plot(uc_buildings)
-plot(uc_buildings[which(uc_buildings$NAME2=="Barrows Hall"),], add=TRUE, col="blue")
-plot(uc_buildings[which(uc_buildings$NAME2=="Lawrence Hall of Science"),], add=TRUE, col="red")
-plot(uc_buildings[which(uc_buildings$NAME2=="Sproul Hall"),], add=TRUE, col="red")
+plot(uc_buildings[uc_buildings$NAME2=="Barrows Hall",], add=TRUE, col="blue")
+plot(uc_buildings[uc_buildings$NAME2=="Lawrence Hall of Science",], add=TRUE, col="red")
+plot(uc_buildings[uc_buildings$NAME2=="Sproul Hall",], add=TRUE, col="red")
 
 # plot all maps
 plot(uc_buildings)
