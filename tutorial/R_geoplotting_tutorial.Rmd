@@ -32,8 +32,7 @@ The content of this tutorial provides guidance for:
 
 ### Prerequisites
 
-- Basic knowledge of R assumed.
-- Access to the R statistical software environment (available from http://cran.r-project.org/).
+- Basic knowledge of R and ggplot assumed.
 - Some basic knowledge of geographic data is recommended.
 
 ### Limitations
@@ -50,6 +49,7 @@ The content of this tutorial provides guidance for:
 - The code is a bit long and complex and is meant to serve as a reference. Thus, make this document available for students to copy from or cut and paste.
 - There are several opportunities for students to extend or change the code for practice. Students should be encouraged to follow the related tutorials.
 - Leave time for students to enter and run the code, e.g., take a break every 20 minutes to get everyone caught up.
+- Students should be encouraged to bring a laptop to the workshop with R, RStudio & packages installed.
 
 ### Preparation
 
@@ -62,7 +62,7 @@ The content of this tutorial provides guidance for:
 - Make a note of the directory, or folder, on your computer to which this data have been downloaded.
 - Start your R program.
 
-## R Code
+## R Environment and Packages
 
 ### Clean slate 
 
@@ -75,8 +75,9 @@ rm(list = ls())
 Set your working directory (or folder) to the directory on your computer that contains the tutorial data. This is where R will write output files and look for input. Or if you have created an Rstudio project (File -> New Project) for this training you won't need to change the directory.
 
 ```
-setwd("~/Documents/Dlab/SpatialPlot")   # or local folder
+setwd("~/Documents/Dlab/SpatialPlot")   # or local folder on Mac / *nix computer
 #setwd("~/Dropbox/Dlab/SpatialPlot")    # Could also be a dropbox folder (smart!)
+#setwd("c:/docs/Dlab/SpatialPlot")      # MS Windows OS stye
 ```
 
 ### Load Required Packages
@@ -90,7 +91,7 @@ Below is some useful code that will:
 
 ```{r, eval=FALSE}
 
-required.pkg <- c("maps", "ggplot2", "ggmap", "rgdal", "sp", "dplyr", "tidyr", "scales", "RColorBrewer", "classInt")
+required.pkg <- c("maps", "ggplot2", "ggmap", "maptools", "rgdal", "sp", "dplyr", "tidyr", "scales", "RColorBrewer", "classInt")
 pkgs.not.installed <- required.pkg[!sapply(required.pkg, function(p) require(p, character.only=T))]
 install.packages(pkgs.not.installed, dependencies=TRUE)
 
@@ -104,6 +105,8 @@ lapply(required.pkg, library, character.only = TRUE)
 The R packages used in this tutorial provide the following functionality:
 
 - **maps**: a package for accessing geographic data for regions in the world.
+- **maptools: ** tools for reading and handling spatial objects
+- **sp: ** tools for creating and working with spatial data objects
 - **ggplot2**: a powerful plotting library that supports map creation among other plot types
 - **ggmap**: extends ggplot2 to provide access to online basemaps (e.g. Google Maps, OpenStreetMaps) and online services like the Google Geocoder
 - **rgdal**: for importing and transforming different spatial data types and providing access to proj4 library for working with map projections and coordinate systems
@@ -138,14 +141,7 @@ world <- map_data("world")  # Load the world data into the object called world
 
 ### ggplot2
 
-Created by Hadley Wickham, **ggplot2** is perhaps the most widely used R package for creating plots, charts & maps. People who use ggplot are familiar with its syntax. However, newcomers to the package may find it non-intuitive. 
-
-There are many online tutorials and cheat-sheets for using ggplot. Some starting points:
-
-- http://docs.ggplot2.org
-- https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf
-- http://zevross.com/blog/2014/08/04/beautiful-plotting-in-r-a-ggplot2-cheatsheet-3/
-- http://zevross.com/blog/2014/07/16/mapping-in-r-using-the-ggplot2-package/
+Created by Hadley Wickham, **ggplot2** is perhaps the most widely used R package for creating plots, charts & maps. People who use ggplot are familiar with its syntax. However, newcomers to the package may find it non-intuitive.  There are many online tutorials and cheat-sheets for using ggplot. Some starting points are listed at the end of this tutorial.
 
 
 ### ggplot2 - jump start
@@ -167,7 +163,7 @@ ggplot() + geom_path(data=world, aes(x=long, y=lat, group=group))
 
 - The plus sign that chains the command syntax should always be on the right, else may cause errors!
 - The second syntax structure is clearer when layering multiple **geom_** types.
-- The **aes()** or aesthetic function maps the data to specific plot elements. 
+- The ggplot2 **aes()** or aesthetic function associates the data to specific plot elements. 
 - You may have used the *qplot()* function (short for quick plot) in ggplot to create plots with non-geographic data. However, qplot() does not have the full functionality of ggplot() and in particular cannot layer different data objects on the same plot - an activity that is very common in map making (i.e., map overlay). Thus, qplot will not be covered in this tutorial.
 
 See the **ggplot2** documentation to dive into the details of the ggplot() syntax. 
@@ -188,7 +184,7 @@ str(world) # Take a look at the data types
 
 ### Geographic Data in R 
 
-In brief, geographic data are data that specify locations on or near the surface of the earth and may also include attributes that describe that location. Digital geographic data are also called geospatial or spatial data. Geographic data in R are can be stored in one of several classes of data objects. The **ggplot** package requires geographic data to be in a data frame, while other packages requre spatial data objects. A spatial data object in R (or in other software) specifies locations using spatial data types (points, lines, polygons, grids), provides support for coordinate reference system information to locate geographic data on the surface of the earth, and has spatial functions for operating on these data, for example to calculate spatial metrics like area and distance or spatial relations like intersects, contains, touches, etc. While spatial data objects facilitate more powerful spatial analyses, both types of geographic data objects can be used to create beautiful maps in R. Moreover, we can transform geographic data from one format to the other in R.
+In brief, geographic data are data that specify locations on or near the surface of the earth and may also include attributes that describe that location. Digital geographic data are also called geospatial or spatial data. Geographic data in R are can be stored in one of several classes of data objects. The **ggplot** package requires geographic data to be in an R data frame, while other packages require specific spatial data objects, such as SP package SpatialPointsDataFrame. A spatial data object in R (or in other software) specifies locations using spatial data types (points, lines, polygons, grids), provides support for coordinate reference system information to locate geographic data on the surface of the earth, and has spatial functions for operating on these data, for example to calculate spatial metrics like area and distance or spatial relations like intersects, contains, touches, etc. While spatial data objects facilitate more powerful spatial analyses. In this tutorial you will create maps from geographic data in both data frames and spatial objects. Moreover, we can transform geographic data from one format to the other in R.
 
 ### Structure of a ggplot data frame for geographic data 
 
@@ -231,18 +227,18 @@ ggplot(world[world$region=="India",], aes(x=long, y=lat)) +
 Does that look better?
 
 
-### Map Projections & Coordinate Refeference Systems
+### Map Projections & Coordinate Reference Systems
 If you are going to be working with geographic data, you *need* to learn about map projections and coordinate reference systems. In depth treatment of those topics is beyond the scope of this tutorial. Here are some useful references:
 
 - https://en.wikipedia.org/wiki/Map_projection
 - https://en.wikipedia.org/wiki/Geographic_coordinate_system
 - ESRI, 2004. Understanding Map Projections, pp 1-21. (available via web search). 
 
-That said, here are a few important notes word about map projectons & coordinate refeference Systems (CRS):
+That said, here are a few important notes about map projections & coordinate refeference Systems (CRS):
 
 - **Geographic CRS** - coordinates specify geographic locations on a 3D sphere and look weird when displayed on a 2D planar surface like a map or computer screen.
 - **Map Projection** - a CRS that employs a mathematical transformation to project geographic coordinates onto a 2D surface.
-- All projections introduce distortion in shape, area, distance and,or direction. Map projections are specified to minimize one or more of these sourses of distortion for one region.
+- All projections introduce distortion in shape, area, distance and,or direction. Map projections are specified to minimize one or more of these sources of distortion for one region.
 - You should (almost) never do spatial analysis using data in a geographic CRS - always use projected data! Again, this topic is beyond our scope but is important to keep in mind.
 
 Thus far, we have used the *coord_map()* function to call the **mapproj** package from within ggplot. This package provides a simplified way of using map projections and coordinate systems. The *rgdal* package, which uses the *proj4* library, includes a much more sophisticated set of tools for handling CRSs. 
@@ -252,7 +248,7 @@ Edit the code we used above to create a map of Canada or another country of your
 
 ### Assigning a plot to a variable
 
-You can assign a plot to a variable name (below **p2**) and then display the plot by entering the variable name in the R console. That way you can display or add to the plot without having to re-input all that code!
+You can assign a plot to a variable name (see **p2** below) and then display the plot by entering the variable name in the R console. That way you can display or add to the plot without having to re-input all that code!
 ```{r, eval=FALSE}
 
 p2 <- ggplot(world[world$region=="India",], aes(x=long, y=lat)) +   
@@ -338,40 +334,45 @@ myplot + scale_fill_brewer(palette="Set3")
 ```
 
 
-### ColorBrewer Package
-Read the package help doc on the ColorBrewer Package
-See aslo: colorbrewer.org
+### rColorBrewer Package
+Read the package help doc on the rColorBrewer Package
+See also: colorbrewer.org
 
 ```{r, eval=FALSE}
-?ColorBrewer
-display.brewer.pal(3,"Set3")
+?ColorBrewer # access help pages
+display.brewer.pal(3,"Set3") # view a color palette
 ```
 
 ### Types of palettes:
 
-- categorical or qualitative - complementary colors
-- Sequential - imply higher to lower ranks or values
-- Divergent - emphasize outliers
+- Qualitative - complementary colors, e.g. pastels, to emphasize different categories
+- Sequential - a range of different shades of the same color (hue) to imply higher to lower ranks or values
+- Divergent - two squential color palettes with a light or grey color in the middle; used to emphasize outliers
 
 ```{r, eval=FALSE}
 display.brewer.all(type="qual")
 display.brewer.all(type="seq")
 display.brewer.all(type="div")
 ```
+### Recap
+- Points define locations, connected points define lines, closed lines define polygons (or area features).
+- Colour (or color/col) is used to symbolize the geometry - points, lines, or polygon boundaries.
+- fill='color' is used to color the interior region of a polygon.
+
 
 ### Exercise - color symbology
-Change the fill palette and the outline color for the previous map. Experiment with several fo the brewer palettes.
+Change the fill palette and the outline color for the previous map. Experiment with several of the brewer palettes.
 
 ## Section 2: Creating choropleth maps
 
-Choropleth maps symbolize areas by values. To create a choropleth map you need to link the attribute data to the spatial data (polygons).  We will do this with in the following section by loading data for US states from the maps package and then linking the data frame of state attributes to the state polygons based on state id or state name.
+Choropleth maps symbolize areas by values. Thus, they are an important tool for combining spatial and attribute data. To create a choropleth map you need to link the attribute data to the spatial data (polygons).  We will do this with in the following section by loading data for US states from the maps package and then linking the data frame of state attributes to the state polygons based on state id or state name.
 
 The maps package has a data set called **state**. Let's load it and map it.
 ```{r, eval=FALSE}
 states <- map_data("state")  #  See ?map_data for details
 head(states)
 ggplot(states, aes(x=long, y=lat)) +
-  geom_polygon(aes(group=group, fill=region), colour="black", fill="white") 
+  geom_polygon(aes(group=group, fill=region), colour="black", fill="white")  #note: color, colour, and col all work!
 ```
 
 ### State Attribute Data
@@ -379,6 +380,7 @@ The state data includes a matrix called *state.x77* that has key variables for e
 ```{r, eval=FALSE}
 data(state)
 state_att <- state.x77     # rename it
+
 head(state_att)
 str(state_att)
 unique(states$region)
@@ -510,7 +512,7 @@ mymap <- mymap + geom_text(data = NULL, x=berkeley_loc[1] + 1, y=berkeley_loc[2]
 # Display the map with the labeled point
 mymap
 ```
-Why did we add a *+1* to the x coordinate for the text lable Berkeley?
+Why did we add a *+1* to the x coordinate for the text label Berkeley?
 
 
 ### Save the plot with ggsave
@@ -616,7 +618,7 @@ Thus far we have created maps using data from the R maps and ggmaps packages. No
 
 #### Load the data and take a look at it
 ```{r, eval=FALSE}
-cafe <- read.csv("cafe.csv")
+cafe <- read.csv("cafe.csv") # or cafe <- read.csv("data/cafe.csv")
 head(cafe)
 str(cafe)
 ```
@@ -685,33 +687,33 @@ cafe_sp <- SpatialPoints(cafe_coords)
 proj4string(cafe_sp) <- CRS("+proj=longlat + ellps=WGS84")
 
 # Note we could do those two steps in one line of code - as the documentation shows us.
-#dat_sp <- SpatialPoints(dat_coords, proj4string=CRS("+proj=longlat + ellps=WGS84"))
+# cafe_sp <- SpatialPoints(cafe_coords, proj4string=CRS("+proj=longlat + ellps=WGS84"))
 # But it is good to know you can assign a CRS to a spatial object at any time.
 
 # Take a look at the Object
-class(dat_sp)
-str(dat_sp)
-summary(dat_sp)
+class(cafe_sp)
+str(cafe_sp)
+summary(cafe_sp)
 
-# How many and what slots are in the SpatialPoints Object dat_sp?
-slot(dat_sp, "coords")
-bbox(dat_sp)
-proj4string(dat_sp)
+# How many and what slots are in the SpatialPoints Object cafe_sp?
+slot(cafe_sp, "coords")
+bbox(cafe_sp)
+proj4string(cafe_sp)
 ```
 
 #### We can subset the spatialpoints data: 
 I want to know the location of Strada..
 ```{r, eval=FALSE}
-coordinates(dat_sp)[row.names(dat_sp) == "strada",]
+coordinates(cafe_sp)[row.names(cafe_sp) == "strada",]
 ```
 
 ### Create Maps with R Base Plotting System
 
 A basic map that plots 
 ```{r, eval=FALSE}
-plot(dat_sp)
-points(coordinates(dat_sp)[row.names(dat_sp)=="strada", 1],
-       coordinates(dat_sp)[row.names(dat_sp)=="strada", 2], col="red", pch=20)
+plot(cafe_sp)
+points(coordinates(cafe_sp)[row.names(cafe_sp)=="strada", 1],
+       coordinates(cafe_sp)[row.names(cafe_sp)=="strada", 2], col="red", pch=20)
 ```
 
 
@@ -956,7 +958,7 @@ Try Making the following maps based on the previous code.
 
 ## References
 
-### Recommended Tutorials
+### Recommended Tutorials for Plotting Spatial Data
 - http://www.kevjohnson.org/making-maps-in-r/
 - http://blog.dominodatalab.com/geographic-visualization-with-rs-ggmaps/
 - http://rforpublichealth.blogspot.com/2015/10/mapping-with-ggplot-create-nice.html
@@ -966,7 +968,7 @@ Try Making the following maps based on the previous code.
 - https://journal.r-project.org/archive/2013-1/kahle-wickham.pdf (ggmap artical by creators David Kahle & Hadley Wickham)
 - http://rpubs.com/ajlyons/rgeospatialdata
 
-### Books: 
+### Books on working with Spatial Data in R: 
 
 - Applied Spatial Data Analysis with R**, 2nd edition,
 by Roger S. Bivand, Edzer Pebesma, Virgilio Gómez-Rubio
@@ -974,9 +976,17 @@ by Roger S. Bivand, Edzer Pebesma, Virgilio Gómez-Rubio
 - An Introduction to R for Spatial Analysis and Mapping, 2015,
 by Chris Brunsdon and Lex Comber
 
-- ggplot2: Elegant Graphics for Data Analysis (Use R!) 1st ed. 2009. Corr. 3rd printing 2010 Edition
-by Hadley Wickham (See: http://ggplot2.org/book/).
 
+
+*** ggplot2 References
+- ggplot2: Elegant Graphics for Data Analysis (Use R!) 1st ed. 2009. Corr. 3rd printing 2010 Edition
+by Hadley Wickham (See: http://ggplot2.org/book/)
+- http://docs.ggplot2.org
+- https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf
+- http://zevross.com/blog/2014/08/04/beautiful-plotting-in-r-a-ggplot2-cheatsheet-3/
+- http://zevross.com/blog/2014/07/16/mapping-in-r-using-the-ggplot2-package
+- http://www.cookbook-r.com/
+- 
 <br>
 
 ##### First Created: OCT 25 2015
