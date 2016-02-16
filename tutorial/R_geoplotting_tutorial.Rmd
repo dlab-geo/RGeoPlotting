@@ -952,7 +952,7 @@ Try Making the following maps based on the previous code.
 - Save the above map to a large image or PDF file, e.g., 7 x 7.
 - Create a similar map using a different census variable in plotData.
 - Add the cafe data frame (dat) to the above plot.
-- Add UC boundary data to the above map.
+
 
 <br>
 
