@@ -1,7 +1,7 @@
 #### Prepared for D-lab workshop series: Mapping in R
 #### Instructors: Patty Frontiera & Shinhye Choi
 #### contact: schoi [at] berkeley.edu for suggestions
-#### 
+#### Updated: Spring 2016
 #### New topics: lines starting with "###"
 
 rm(list = ls())
@@ -10,18 +10,22 @@ rm(list = ls())
 
 # Here is some code to identify all needed packages, install if not installed, then load with library()
 req.pkg <- c("ggmap", "rgdal", "rgeos", "maptools", "dplyr", "tidyr", "tmap", 
-             "sp", "ggplot2", "scales", "Cairo", "maps", "RColorBrewer")
+             "sp", "ggplot2", "scales", "Cairo", "maps", "RColorBrewer", "classInt")
 pkgs.not.installed <- req.pkg[!sapply(req.pkg, function(p) require(p, character.only=T))]
 install.packages(pkgs.not.installed, dependencies=TRUE)
 lapply(req.pkg, library, character.only = TRUE)         # you could library them all at once.
 
+# run the multiplot function available at the bottom of this script.
+
 ### Topic: map plotting with built-in map data
 ### required package: ggplot2, maps
-
-setwd("~/Dropbox/Dlab/SpatialPlot")          # set your own working directory
-
 library(ggplot2)
 library(maps)
+
+# set your own working directory
+# below is mine
+setwd("~/Dropbox/Dlab/RMapping_Spring2016/RGeoPlotting-master/data2")       
+
 
 # retrieve a map from the "maps" package 
 # ?map_data
@@ -33,6 +37,9 @@ ggplot(world, aes(x=long, y=lat)) +
 # group, order - what do they mean? 
 # group: grouping for each polygon.
 head(world)
+str(world)
+dim(world)
+
 
 # a country may have multiple polygons:
 # which country do you think should have more data points? why?
@@ -46,6 +53,7 @@ p1 <- ggplot(world[world$region=="India",], aes(x=long, y=lat)) +
 p2 <- ggplot(world[world$region=="India",], aes(x=long, y=lat)) +   
               geom_path(aes(group=group)) + coord_map("mercator") 
 multiplot(p1, p2, cols=2)
+
 
 # Map projectons & coord ref systems CRS: 
 # Geographic CRS - coordinates specify geographic locations on a 3d sphere. Look weird in 2d
@@ -264,7 +272,7 @@ data(us.cities)
 str(us.cities)
 
 # subset cities - just bay area - get lat lon from
-bayarea_map <-get_map('Berkeley',zoom=8)
+bayarea_map <- get_map('Berkeley',zoom=8)
 ggmap(bayarea_map)
 
 bayarea_cities <- subset(us.cities, (long < -120 & long > -124) & (lat > 36 & lat <40)) # Patty: explain what and why
@@ -400,15 +408,16 @@ points(cafe_spdf[cafe_spdf$name == "strada", ], col="red", pch=20)
 # ### codes for plots included in the slides
 library(rgdal)
 
-setwd("~/Dropbox/Dlab/DlabSpatialPlot")
-ogrInfo(".", "uc_bldgs")
-uc_buildings <- readOGR(dsn=".", layer="uc_bldgs") 
+setwd("~/Dropbox/Dlab/RMapping_Spring2016/RGeoPlotting-master/data2")
+ogrInfo(".", "osm_ucb_buildings")
+uc_buildings <- readOGR(dsn=".", layer="osm_ucb_buildings") 
 summary(uc_buildings)
 
 # load other data
-ogrInfo(".", "uc_bnd")
-uc_boundary <- readOGR(dsn=".", layer="uc_bnd") 
+ogrInfo(".", "ucb_cob_parcel")
+uc_boundary <- readOGR(dsn=".", layer="ucb_cob_parcel") 
 
+setwd("~/Dropbox/Dlab/RMapping_Spring2016/RGeoPlotting-master/data")
 ogrInfo(".", "censusblk")
 census <- readOGR(dsn=".", layer="censusblk") 
 
@@ -435,12 +444,6 @@ plot(censusT, add=T)
 plot(uc_buildingsT, col="red", add=T)
 points(cafe_spdf, col="orange", pch=20)
 
-# more maps!
-# look into the data
-plot(uc_buildings)
-plot(uc_buildings[uc_buildings$NAME2=="Barrows Hall",], add=TRUE, col="blue")
-plot(uc_buildings[uc_buildings$NAME2=="Lawrence Hall of Science",], add=TRUE, col="red")
-plot(uc_buildings[uc_buildings$NAME2=="Sproul Hall",], add=TRUE, col="red")
 
 # plot all maps
 plot(uc_buildings)
@@ -472,7 +475,7 @@ plot(census, border="grey", col=colpal)
 plot(uc_boundary, add=T, border="blue", lwd=2)
 plot(uc_buildings, add=T)
 
-#Patty: let's bring this full circle
+
 # First add a unique id and coordinates to the census SPDF
 censusT$geoid <- with(censusT@data, paste0(STATE, COUNTY, TRACT, BLOCK))
 censusT$X <- coordinates(censusT)[,1]
@@ -505,7 +508,7 @@ myplot <- ggmap(map) +
   geom_polygon(data = plotData, aes(x = long, y = lat, group = group,
                                     fill = POP_DENS)) +
   coord_map() +
-  scale_fill_distiller(palette = "Reds",
+  scale_fill_distiller(palette = "Greens",
                        breaks = pretty_breaks(n = 8)) +
   guides(fill = guide_legend(reverse = TRUE))
 
