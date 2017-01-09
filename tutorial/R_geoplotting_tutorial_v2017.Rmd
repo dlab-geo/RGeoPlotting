@@ -581,9 +581,9 @@ hist(census_blks$ONE_PARENT)
 # plot white pop density for each block
 # don't use class as a var name as it is reserved word
 # library(classInt)
-myclass <- classIntervals(census$WHITE, 5, style = "quantile")
+myclass <- classIntervals(census_blks$WHITE, 5, style = "quantile")
 colpal  <- findColours(myclass, brewer.pal(5, "BuGn"))
-plot(census, border="grey", col=colpal)
+plot(census_blks, border="grey", col=colpal)
 plot(uc_boundary, add=T, border="blue", lwd=2)
 plot(uc_buildings, add=T)
 ```
@@ -597,16 +597,16 @@ Take a look at the help pages for some of those commands
 Map some other variables using different color palettes
 ```{r, eval=FALSE}
 # pop density 
-myclass <- classIntervals(census$POP_DENS, 5, style = "quantile")
+myclass <- classIntervals(census_blks$POP_DENS, 5, style = "quantile")
 colpal<- findColours(myclass, brewer.pal(5, "OrRd"))
-plot(census, border="grey", col=colpal)
+plot(census_blks, border="grey", col=colpal)
 plot(uc_boundary, add=T, border="blue", lwd=2)
 plot(uc_buildings, add=T)
 
 # rent
-myclass <- classIntervals(census$RENT, 5, style = "quantile")
+myclass <- classIntervals(census_blks$RENT, 5, style = "quantile")
 colpal<- findColours(myclass, brewer.pal(5, "PuRd"))
-plot(census, border="grey", col=colpal)
+plot(census_blks, border="grey", col=colpal)
 plot(uc_boundary, add=T, border="blue", lwd=2)
 plot(uc_buildings, add=T)
 ```
@@ -1119,7 +1119,7 @@ Let's bring this tutorial full circle by plotting our Berkeley data on top of Go
 #### First, Transform the berkeley census data to geographic coordinates
 ```{r, eval=FALSE}
 #uc_boundary_geo  <- spTransform(uc_boundary, CRS("+proj=longlat +ellps=WGS84"))
-census_geo <- spTransform(census, CRS("+proj=longlat +ellps=WGS84"))
+census_geo <- spTransform(census_blks, CRS("+proj=longlat +ellps=WGS84"))
 #uc_buildings_geo <- spTransform(uc_buildings,CRS(proj4string(census_geo))
 ```
 

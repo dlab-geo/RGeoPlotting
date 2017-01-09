@@ -740,9 +740,9 @@ hist(census_blks$ONE_PARENT)</code></pre>
 # plot white pop density for each block
 # don't use class as a var name as it is reserved word
 # library(classInt)
-myclass &lt;- classIntervals(census$WHITE, 5, style = &quot;quantile&quot;)
+myclass &lt;- classIntervals(census_blks$WHITE, 5, style = &quot;quantile&quot;)
 colpal  &lt;- findColours(myclass, brewer.pal(5, &quot;BuGn&quot;))
-plot(census, border=&quot;grey&quot;, col=colpal)
+plot(census_blks, border=&quot;grey&quot;, col=colpal)
 plot(uc_boundary, add=T, border=&quot;blue&quot;, lwd=2)
 plot(uc_buildings, add=T)</code></pre>
 <p>Take a look at the help pages for some of those commands</p>
@@ -750,16 +750,16 @@ plot(uc_buildings, add=T)</code></pre>
 ?findColours</code></pre>
 <p>Map some other variables using different color palettes</p>
 <pre class="r"><code># pop density 
-myclass &lt;- classIntervals(census$POP_DENS, 5, style = &quot;quantile&quot;)
+myclass &lt;- classIntervals(census_blks$POP_DENS, 5, style = &quot;quantile&quot;)
 colpal&lt;- findColours(myclass, brewer.pal(5, &quot;OrRd&quot;))
-plot(census, border=&quot;grey&quot;, col=colpal)
+plot(census_blks, border=&quot;grey&quot;, col=colpal)
 plot(uc_boundary, add=T, border=&quot;blue&quot;, lwd=2)
 plot(uc_buildings, add=T)
 
 # rent
-myclass &lt;- classIntervals(census$RENT, 5, style = &quot;quantile&quot;)
+myclass &lt;- classIntervals(census_blks$RENT, 5, style = &quot;quantile&quot;)
 colpal&lt;- findColours(myclass, brewer.pal(5, &quot;PuRd&quot;))
-plot(census, border=&quot;grey&quot;, col=colpal)
+plot(census_blks, border=&quot;grey&quot;, col=colpal)
 plot(uc_boundary, add=T, border=&quot;blue&quot;, lwd=2)
 plot(uc_buildings, add=T)</code></pre>
 <blockquote>
@@ -1180,7 +1180,7 @@ ggmap(bayarea_map) +
 <div id="first-transform-the-berkeley-census-data-to-geographic-coordinates" class="section level4">
 <h4>First, Transform the berkeley census data to geographic coordinates</h4>
 <pre class="r"><code>#uc_boundary_geo  &lt;- spTransform(uc_boundary, CRS(&quot;+proj=longlat +ellps=WGS84&quot;))
-census_geo &lt;- spTransform(census, CRS(&quot;+proj=longlat +ellps=WGS84&quot;))
+census_geo &lt;- spTransform(census_blks, CRS(&quot;+proj=longlat +ellps=WGS84&quot;))
 #uc_buildings_geo &lt;- spTransform(uc_buildings,CRS(proj4string(census_geo))</code></pre>
 </div>
 <div id="next-create-a-data-frame-that-ggmapggplot-can-map" class="section level4">
